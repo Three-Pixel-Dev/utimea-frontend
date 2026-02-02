@@ -17,9 +17,10 @@ export function GeneralError({
   
   const handleGoHome = () => {
     if (auth.accessToken) {
-      navigate({ to: '/_authenticated/' as any })
+      // Navigate to root, which will redirect to dashboard
+      window.location.href = '/'
     } else {
-      navigate({ to: '/sign-in' })
+      window.location.href = '/sign-in'
     }
   }
   
