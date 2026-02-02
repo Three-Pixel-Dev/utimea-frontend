@@ -1,4 +1,4 @@
-import { useNavigate, useRouter } from '@tanstack/react-router'
+import { useRouter } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth-store'
@@ -11,14 +11,12 @@ export function GeneralError({
   className,
   minimal = false,
 }: GeneralErrorProps) {
-  const navigate = useNavigate()
   const { history } = useRouter()
   const { auth } = useAuthStore()
   
   const handleGoHome = () => {
     if (auth.accessToken) {
-      // Navigate to root, which will redirect to dashboard
-      window.location.href = '/'
+      window.location.href = '/_authenticated/'
     } else {
       window.location.href = '/sign-in'
     }
