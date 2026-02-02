@@ -8,7 +8,6 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'

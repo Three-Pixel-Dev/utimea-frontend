@@ -9,7 +9,7 @@ export function NotFoundError() {
   
   const handleGoHome = () => {
     if (auth.accessToken) {
-      navigate({ to: '/_authenticated/' })
+      navigate({ to: '/_authenticated/' as any })
     } else {
       navigate({ to: '/sign-in' })
     }

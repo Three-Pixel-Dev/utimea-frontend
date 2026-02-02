@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_authenticated')({
     // Redirect to index if accessing the layout route directly
     if (location.pathname === '/_authenticated') {
       throw redirect({
-        to: '/_authenticated/',
+        to: '/_authenticated/' as any,
       })
     }
   },

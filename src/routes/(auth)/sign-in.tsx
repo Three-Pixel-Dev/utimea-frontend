@@ -13,7 +13,7 @@ export const Route = createFileRoute('/(auth)/sign-in')({
     const { auth } = useAuthStore.getState()
     if (auth.accessToken) {
       throw redirect({
-        to: '/_authenticated/',
+        to: '/_authenticated/' as any,
       })
     }
   },

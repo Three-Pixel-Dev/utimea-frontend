@@ -56,9 +56,10 @@ const queryClient = new QueryClient({
         }
         if (error.response?.status === 500) {
           toast.error('Internal Server Error!')
-          if (import.meta.env.PROD) {
-            router.navigate({ to: '/500' })
-          }
+          // Error page route not implemented yet
+          // if (import.meta.env.PROD) {
+          //   router.navigate({ to: '/500' })
+          // }
         }
         if (error.response?.status === 403) {
           // router.navigate("/forbidden", { replace: true });
