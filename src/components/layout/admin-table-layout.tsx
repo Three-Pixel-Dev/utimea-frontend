@@ -1,3 +1,5 @@
+import { useNavigate } from '@tanstack/react-router'
+import { Plus } from 'lucide-react'
 import { type ColumnDef } from '@tanstack/react-table'
 import {
   Card,
@@ -6,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/data-table/data-table'
 import { AdminLayout } from './admin-layout'
 
@@ -18,6 +21,7 @@ type AdminTableLayoutProps<TData> = {
   data: TData[]
   searchKey?: string
   searchPlaceholder?: string
+  createPath: string
 }
 
 export function AdminTableLayout<TData>({
@@ -29,13 +33,27 @@ export function AdminTableLayout<TData>({
   data,
   searchKey,
   searchPlaceholder = 'Search...',
+  createPath,
 }: AdminTableLayoutProps<TData>) {
+  const navigate = useNavigate()
+
   return (
     <AdminLayout title={title} description={description}>
       <Card>
         <CardHeader>
-          <CardTitle>{cardTitle}</CardTitle>
-          <CardDescription>{cardDescription}</CardDescription>
+          <div className='flex items-center justify-between'>
+            <div>
+              <CardTitle>{cardTitle}</CardTitle>
+              <CardDescription>{cardDescription}</CardDescription>
+            </div>
+            <Button
+              onClick={() => navigate({ to: createPath as any })}
+              size='sm'
+            >
+              <Plus className='mr-2 h-4 w-4' />
+              Create New
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <DataTable

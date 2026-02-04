@@ -16,6 +16,11 @@
   body {
     @apply min-h-svh w-full bg-background text-foreground has-[div[data-variant='inset']]:bg-sidebar;
   }
+  
+  /* Also apply to headings that are typically bold */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+  }
 
   /* Override Radix scroll locking for sticky headers */
   body[data-scroll-locked] {
@@ -55,6 +60,46 @@
 
 @utility faded-bottom {
   @apply after:pointer-events-none after:absolute after:start-0 after:bottom-0 after:hidden after:h-32 after:w-full after:rounded-b-2xl after:bg-[linear-gradient(180deg,transparent_10%,var(--background)_70%)] md:after:block;
+}
+
+/* UIT Teal for bold text - only in light mode */
+html:not(.dark) strong,
+html:not(.dark) b,
+html:not(.dark) [class*="font-bold"],
+html:not(.dark) [class*="font-semibold"],
+html:not(.dark) h1 strong, 
+html:not(.dark) h2 strong, 
+html:not(.dark) h3 strong, 
+html:not(.dark) h4 strong, 
+html:not(.dark) h5 strong, 
+html:not(.dark) h6 strong,
+html:not(.dark) h1 b, 
+html:not(.dark) h2 b, 
+html:not(.dark) h3 b, 
+html:not(.dark) h4 b, 
+html:not(.dark) h5 b, 
+html:not(.dark) h6 b {
+  color: var(--uit-teal);
+}
+
+/* Ensure bold text uses default color in dark mode */
+html.dark strong,
+html.dark b,
+html.dark [class*="font-bold"],
+html.dark [class*="font-semibold"],
+html.dark h1 strong, 
+html.dark h2 strong, 
+html.dark h3 strong, 
+html.dark h4 strong, 
+html.dark h5 strong, 
+html.dark h6 strong,
+html.dark h1 b, 
+html.dark h2 b, 
+html.dark h3 b, 
+html.dark h4 b, 
+html.dark h5 b, 
+html.dark h6 b {
+  color: var(--foreground);
 }
 
 /* styles.css */

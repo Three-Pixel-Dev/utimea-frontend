@@ -43,17 +43,6 @@ export function Dashboard() {
           </Card>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>Total Tables</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>48</div>
-              <p className='text-xs text-muted-foreground'>
-                Available tables
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-sm font-medium'>Total Teachers</CardTitle>
             </CardHeader>
             <CardContent>

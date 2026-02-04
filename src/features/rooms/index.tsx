@@ -19,6 +19,7 @@ export function Rooms() {
       data={rooms}
       searchKey='name'
       searchPlaceholder='Search rooms...'
+      createPath='/rooms/new'
     />
   )
 }

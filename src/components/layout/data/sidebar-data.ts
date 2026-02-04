@@ -1,10 +1,10 @@
 import {
   LayoutDashboard,
   DoorOpen,
-  Table,
   GraduationCap,
   Users,
-  Command,
+  Code2,
+  BookOpen,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -14,13 +14,7 @@ export const sidebarData: SidebarData = {
     email: 'admin@utimea.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
-    {
-      name: 'Utimea',
-      logo: Command,
-      plan: 'Admin Dashboard',
-    },
-  ],
+  teams: [],
   navGroups: [
     {
       title: 'Main',
@@ -36,11 +30,6 @@ export const sidebarData: SidebarData = {
           icon: DoorOpen,
         },
         {
-          title: 'View Tables',
-          url: '/tables',
-          icon: Table,
-        },
-        {
           title: 'View Teachers',
           url: '/teachers',
           icon: GraduationCap,
@@ -49,6 +38,16 @@ export const sidebarData: SidebarData = {
           title: 'View Students',
           url: '/students',
           icon: Users,
+        },
+        {
+          title: 'View Major Section',
+          url: '/major-sections',
+          icon: BookOpen,
+        },
+        {
+          title: 'View Codes',
+          url: '/codes',
+          icon: Code2,
         },
       ],
     },

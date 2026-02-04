@@ -19,6 +19,7 @@ export function Teachers() {
       data={teachers}
       searchKey='name'
       searchPlaceholder='Search teachers...'
+      createPath='/teachers/new'
     />
   )
 }
