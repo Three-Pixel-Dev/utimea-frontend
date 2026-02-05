@@ -49,6 +49,11 @@ export const sidebarData: SidebarData = {
           url: '/codes',
           icon: Code2,
         },
+        {
+          title: 'View Timetable',
+          url: '/timetables',
+          icon: Code2,
+        },
       ],
     },
   ],
