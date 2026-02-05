@@ -7,12 +7,10 @@ import { teachersService } from '@/features/teachers/teachers-service'
 export const Route = createFileRoute('/_authenticated/teachers/edit/$id')({
   component: () => {
     const { id } = Route.useParams()
-    const { data: teachers } = useQuery({
-      queryKey: ['teachers'],
-      queryFn: () => teachersService.getAll(),
+    const { data: teacher } = useQuery({
+      queryKey: ['teacher', id],
+      queryFn: () => teachersService.getById(Number(id)),
     })
-
-    const teacher = teachers?.find((t) => t.id === Number(id))
 
     return (
       <AdminFormLayout

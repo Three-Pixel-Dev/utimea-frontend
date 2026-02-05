@@ -36,22 +36,32 @@ export const teachersTableColumns: ColumnDef<Teacher>[] = [
     enableHiding: true,
   },
   {
-    accessorKey: 'email',
+    accessorKey: 'phoneNumber',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Email' />
+      <DataTableColumnHeader column={column} title='Phone Number' />
+    ),
+    enableSorting: true,
+    enableHiding: true,
+  },
+  {
+    accessorKey: 'degree',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Degree' />
     ),
     enableSorting: true,
     enableHiding: true,
   },
   {
     accessorKey: 'department',
-    header: 'Department',
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    enableHiding: false,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Department' />
+    ),
+    cell: ({ row }) => {
+      const department = row.original.department
+      return department ? department.name : '-'
+    },
+    enableSorting: true,
+    enableHiding: true,
   },
   {
     id: 'actions',

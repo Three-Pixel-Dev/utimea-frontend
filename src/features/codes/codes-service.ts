@@ -4,7 +4,7 @@ export type Code = {
   id: number
   name: string
   constantValue: string
-  systemDefined: boolean // Frontend-only field, defaults to false
+  count: number
   masterData: {
     id: number
     createdBy: number | null
@@ -72,42 +72,22 @@ export const codesService = {
       '/api/codes/pageable',
       requestBody
     )
-    // Map backend response to include systemDefined field (defaults to false)
-    const data = response.data.data
-    return {
-      ...data,
-      content: data.content.map((code) => ({
-        ...code,
-        systemDefined: false, // Can be enhanced later with logic based on constantValue
-      })),
-    }
+    return response.data.data
   },
 
   getById: async (id: number): Promise<Code | undefined> => {
     const response = await apiClient.get<ApiResponse<Code>>(`/api/codes/${id}`)
-    const code = response.data.data as Code
-    return {
-      ...code,
-      systemDefined: false,
-    }
+    return response.data.data as Code
   },
 
   create: async (code: CodeRequest): Promise<Code> => {
     const response = await apiClient.post<ApiResponse<Code>>('/api/codes', code)
-    const createdCode = response.data.data as Code
-    return {
-      ...createdCode,
-      systemDefined: false,
-    }
+    return response.data.data as Code
   },
 
   update: async (id: number, code: CodeRequest): Promise<Code> => {
     const response = await apiClient.put<ApiResponse<Code>>(`/api/codes/${id}`, code)
-    const updatedCode = response.data.data as Code
-    return {
-      ...updatedCode,
-      systemDefined: false,
-    }
+    return response.data.data as Code
   },
 
   delete: async (id: number): Promise<void> => {

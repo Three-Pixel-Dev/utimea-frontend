@@ -40,10 +40,10 @@ export function MajorSectionForm({ majorSection, mode }: MajorSectionFormProps) 
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
-  // Fetch Major Section Year code values (codeId: 3)
+  // Fetch Major Section Year code values (codeId: 5)
   const { data: majorSectionYearPagination } = useQuery({
-    queryKey: ['codeValues', 3],
-    queryFn: () => codesService.getCodeValues(3),
+    queryKey: ['codeValues', 5],
+    queryFn: () => codesService.getCodeValues(5),
   })
 
   const majorSectionYearValues = majorSectionYearPagination?.content || []

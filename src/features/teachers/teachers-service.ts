@@ -1,27 +1,69 @@
+import { apiClient, type ApiResponse, type PaginationResponse, type PageAndFilter } from '@/lib/api-client'
+
 export type Teacher = {
   id: number
   name: string
-  email: string
-  department: string
-  status: string
+  phoneNumber: string | null
+  degree: string | null
+  department: {
+    id: number
+    name: string
+  } | null
+  masterData: {
+    id: number
+    createdBy: number | null
+    updatedBy: number | null
+    createdAt: string
+    updatedAt: string
+  }
+}
+
+export type TeacherRequest = {
+  name: string
+  phoneNumber?: string | null
+  degree?: string | null
+  departmentId?: number | null
+}
+
+export type TeacherFilter = {
+  name?: string
+  phoneNumber?: string
+  degree?: string
+  departmentId?: number
 }
 
 export const teachersService = {
-  getAll: async (): Promise<Teacher[]> => {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          { id: 1, name: 'Dr. John Smith', email: 'john.smith@example.com', department: 'Mathematics', status: 'Active' },
-          { id: 2, name: 'Prof. Jane Doe', email: 'jane.doe@example.com', department: 'Science', status: 'Active' },
-          { id: 3, name: 'Dr. Robert Johnson', email: 'robert.j@example.com', department: 'English', status: 'Active' },
-          { id: 4, name: 'Prof. Sarah Williams', email: 'sarah.w@example.com', department: 'History', status: 'On Leave' },
-          { id: 5, name: 'Dr. Michael Brown', email: 'michael.b@example.com', department: 'Mathematics', status: 'Active' },
-          { id: 6, name: 'Prof. Emily Davis', email: 'emily.d@example.com', department: 'Science', status: 'Active' },
-          { id: 7, name: 'Dr. James Wilson', email: 'james.w@example.com', department: 'English', status: 'Active' },
-          { id: 8, name: 'Prof. Lisa Anderson', email: 'lisa.a@example.com', department: 'History', status: 'Active' },
-        ])
-      }, 100)
-    })
+  getAll: async (pageAndFilter?: PageAndFilter<TeacherFilter>): Promise<PaginationResponse<Teacher>> => {
+    const requestBody: PageAndFilter<TeacherFilter> = {
+      page: pageAndFilter?.page ?? 0,
+      size: pageAndFilter?.size ?? 10,
+      sortBy: pageAndFilter?.sortBy,
+      sortDirection: pageAndFilter?.sortDirection ?? 'ASC',
+      filter: pageAndFilter?.filter,
+    }
+    const response = await apiClient.post<ApiResponse<PaginationResponse<Teacher>>>(
+      '/api/teachers/pageable',
+      requestBody
+    )
+    return response.data.data
+  },
+
+  getById: async (id: number): Promise<Teacher> => {
+    const response = await apiClient.get<ApiResponse<Teacher>>(`/api/teachers/${id}`)
+    return response.data.data as Teacher
+  },
+
+  create: async (teacher: TeacherRequest): Promise<Teacher> => {
+    const response = await apiClient.post<ApiResponse<Teacher>>('/api/teachers', teacher)
+    return response.data.data as Teacher
+  },
+
+  update: async (id: number, teacher: TeacherRequest): Promise<Teacher> => {
+    const response = await apiClient.put<ApiResponse<Teacher>>(`/api/teachers/${id}`, teacher)
+    return response.data.data as Teacher
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/api/teachers/${id}`)
   },
 }

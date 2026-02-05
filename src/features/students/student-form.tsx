@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -23,16 +23,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Student } from './students-service'
+import { Student, studentsService } from './students-service'
 import { codesService } from '@/features/codes/codes-service'
 import { majorSectionsService } from '@/features/major-sections/major-sections-service'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  batch: z.string().min(1, 'Batch is required'),
-  majorSection: z.string().min(1, 'Major section is required'),
-  status: z.string().min(1, 'Status is required'),
+  phoneNumber: z.string().optional(),
+  batchId: z.string().optional(),
+  majorSectionId: z.string().optional(),
 })
 
 type StudentFormProps = {
@@ -44,48 +43,72 @@ export function StudentForm({ student, mode }: StudentFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
-  // Fetch Batch code values (codeId: 1)
-  const { data: batchValues = [] } = useQuery({
-    queryKey: ['codeValues', 1],
-    queryFn: () => codesService.getCodeValues(1),
+  // Fetch Batch code values
+  const { data: batchList } = useQuery({
+    queryKey: ['codeValues', 'BATCH'],
+    queryFn: () => codesService.getCodeValuesByConstantValue('BATCH'),
   })
 
   // Fetch Major Sections
-  const { data: majorSections = [] } = useQuery({
+  const { data: majorSectionsPagination } = useQuery({
     queryKey: ['majorSections'],
-    queryFn: () => majorSectionsService.getAll(),
+    queryFn: () => majorSectionsService.getAll({ page: 0, size: 1000 }),
   })
+
+  const batchValues = batchList || []
+  const majorSections = majorSectionsPagination?.content || []
 
   type FormData = z.infer<typeof formSchema>
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: student?.name || '',
-      email: student?.email || '',
-      batch: student?.batch || '',
-      majorSection: student?.majorSection || '',
-      status: student?.status || 'Active',
+      name: '',
+      phoneNumber: '',
+      batchId: '',
+      majorSectionId: '',
     },
   })
 
-  function onSubmit(_data: FormData) {
+  // Update form values when student data is loaded
+  useEffect(() => {
+    if (student) {
+      const batchId = student.batch?.id?.toString() || ''
+      const majorSectionId = student.majorSection?.id?.toString() || ''
+      form.reset({
+        name: student.name || '',
+        phoneNumber: student.phoneNumber || '',
+        batchId: batchId,
+        majorSectionId: majorSectionId,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [student])
+
+  async function onSubmit(data: FormData) {
     setIsLoading(true)
 
-    toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 1000)),
-      {
-        loading: mode === 'create' ? 'Creating student...' : 'Updating student...',
-        success: () => {
-          setIsLoading(false)
-          navigate({ to: '/students' as any })
-          return mode === 'create'
-            ? 'Student created successfully!'
-            : 'Student updated successfully!'
-        },
-        error: 'An error occurred',
+    try {
+      const requestData = {
+        name: data.name,
+        phoneNumber: data.phoneNumber || null,
+        batchId: data.batchId ? Number(data.batchId) : null,
+        majorSectionId: data.majorSectionId ? Number(data.majorSectionId) : null,
       }
-    )
+
+      if (mode === 'create') {
+        await studentsService.create(requestData)
+        toast.success('Student created successfully!')
+      } else if (student) {
+        await studentsService.update(student.id, requestData)
+        toast.success('Student updated successfully!')
+      }
+      setIsLoading(false)
+      navigate({ to: '/students' as any })
+    } catch (error) {
+      setIsLoading(false)
+      toast.error('An error occurred')
+    }
   }
 
   return (
@@ -106,12 +129,12 @@ export function StudentForm({ student, mode }: StudentFormProps) {
         />
         <FormField
           control={form.control}
-          name='email'
+          name='phoneNumber'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <Input type='email' placeholder='john.doe@example.com' {...field} />
+                <Input placeholder='+1234567890' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -119,74 +142,73 @@ export function StudentForm({ student, mode }: StudentFormProps) {
         />
         <FormField
           control={form.control}
-          name='batch'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Batch</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select batch' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {batchValues
-                    .filter((value) => value.active)
-                    .map((value) => (
-                      <SelectItem key={value.id} value={value.name}>
-                        {value.name}
+          name='batchId'
+          render={({ field }) => {
+            const currentValue = field.value || ''
+            const validId = batchValues.some(v => v.id.toString() === currentValue) 
+              ? currentValue 
+              : ''
+            return (
+              <FormItem>
+                <FormLabel>Batch</FormLabel>
+                <Select 
+                  key={`batch-${batchValues.length}-${currentValue}-${student?.id || 'new'}`}
+                  onValueChange={field.onChange} 
+                  value={validId || undefined}
+                  disabled={batchValues.length === 0}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Select batch' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {batchValues.map((value) => (
+                      <SelectItem key={value.id} value={value.id.toString()}>
+                        {value.codeValue}
                       </SelectItem>
                     ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )
+          }}
         />
         <FormField
           control={form.control}
-          name='majorSection'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Major Section</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select major section' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {majorSections.map((section) => (
-                    <SelectItem key={section.id} value={section.name}>
-                      {section.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='status'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select status' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value='Active'>Active</SelectItem>
-                  <SelectItem value='Inactive'>Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+          name='majorSectionId'
+          render={({ field }) => {
+            const currentValue = field.value || ''
+            const validId = majorSections.some(s => s.id.toString() === currentValue) 
+              ? currentValue 
+              : ''
+            return (
+              <FormItem>
+                <FormLabel>Major Section</FormLabel>
+                <Select 
+                  key={`majorSection-${majorSections.length}-${currentValue}-${student?.id || 'new'}`}
+                  onValueChange={field.onChange} 
+                  value={validId || undefined}
+                  disabled={majorSections.length === 0}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Select major section' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {majorSections.map((section) => (
+                      <SelectItem key={section.id} value={section.id.toString()}>
+                        {section.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )
+          }}
         />
         <div className='flex justify-end gap-2'>
           <Button

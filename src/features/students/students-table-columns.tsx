@@ -36,9 +36,9 @@ export const studentsTableColumns: ColumnDef<Student>[] = [
     enableHiding: true,
   },
   {
-    accessorKey: 'email',
+    accessorKey: 'phoneNumber',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Email' />
+      <DataTableColumnHeader column={column} title='Phone Number' />
     ),
     enableSorting: true,
     enableHiding: true,
@@ -48,6 +48,10 @@ export const studentsTableColumns: ColumnDef<Student>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Batch' />
     ),
+    cell: ({ row }) => {
+      const batch = row.original.batch
+      return batch ? batch.name : '-'
+    },
     enableSorting: true,
     enableHiding: true,
   },
@@ -56,13 +60,12 @@ export const studentsTableColumns: ColumnDef<Student>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Major Section' />
     ),
+    cell: ({ row }) => {
+      const majorSection = row.original.majorSection
+      return majorSection ? majorSection.name : '-'
+    },
     enableSorting: true,
     enableHiding: true,
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    enableHiding: false,
   },
   {
     id: 'actions',
