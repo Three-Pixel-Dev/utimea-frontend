@@ -2,6 +2,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useState } from 'react'
+import type { PaginationState } from '@tanstack/react-table'
 import {
   Card,
   CardContent,
@@ -22,16 +24,25 @@ type CodeDetailProps = {
 export function CodeDetail({ codeId }: CodeDetailProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
 
   const { data: code } = useQuery({
     queryKey: ['code', codeId],
     queryFn: () => codesService.getById(codeId),
   })
 
-  const { data: codeValues = [] } = useQuery({
-    queryKey: ['codeValues', codeId],
-    queryFn: () => codesService.getCodeValues(codeId),
+  const { data: codeValuesPagination } = useQuery({
+    queryKey: ['codeValues', codeId, pagination.pageIndex, pagination.pageSize],
+    queryFn: () => codesService.getCodeValues(codeId, {
+      page: pagination.pageIndex,
+      size: pagination.pageSize,
+    }),
   })
+
+  const codeValues = codeValuesPagination?.content || []
 
   const handleEditCode = () => {
     navigate({ to: `/codes/edit/${codeId}` as any })
@@ -69,7 +80,7 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
     }
 
     toast.promise(
-      codesService.deleteCodeValue(codeId, valueId).then(() => {
+      codesService.deleteCodeValue(valueId).then(() => {
         queryClient.invalidateQueries({ queryKey: ['codeValues', codeId] })
       }),
       {
@@ -134,6 +145,10 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
             data={codeValues}
             searchKey='name'
             searchPlaceholder='Search code values...'
+            pageCount={codeValuesPagination?.totalPages}
+            totalItems={codeValuesPagination?.totalItems}
+            pagination={pagination}
+            onPaginationChange={setPagination}
           />
         </CardContent>
       </Card>

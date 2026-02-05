@@ -1,6 +1,7 @@
 import {
   ColumnDef,
   ColumnFiltersState,
+  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -27,6 +28,11 @@ type DataTableProps<TData> = {
   data: TData[]
   searchKey?: string
   searchPlaceholder?: string
+  // Server-side pagination props
+  pageCount?: number
+  totalItems?: number
+  onPaginationChange?: (pagination: PaginationState) => void
+  pagination?: PaginationState
 }
 
 export function DataTable<TData>({
@@ -34,11 +40,22 @@ export function DataTable<TData>({
   data,
   searchKey,
   searchPlaceholder = 'Search...',
+  pageCount,
+  totalItems,
+  onPaginationChange,
+  pagination: controlledPagination,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
+  const [internalPagination, setInternalPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+
+  const pagination = controlledPagination ?? internalPagination
+  const setPagination = onPaginationChange ?? setInternalPagination
 
   const table = useReactTable({
     data,
@@ -46,16 +63,20 @@ export function DataTable<TData>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: pageCount === undefined ? getPaginationRowModel() : undefined,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    manualPagination: pageCount !== undefined,
+    pageCount: pageCount,
+    onPaginationChange: setPagination,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
     },
   })
 

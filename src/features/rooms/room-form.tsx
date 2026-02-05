@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -22,7 +22,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Room } from './rooms-service'
+import { Room, roomsService } from './rooms-service'
+
+const ROOM_TYPES = [
+  { value: '1', label: 'Lecture' },
+  { value: '2', label: 'PC' },
+] as const
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -33,7 +38,7 @@ const formSchema = z.object({
       const num = Number(val)
       return !isNaN(num) && num >= 1
     }, 'Capacity must be at least 1'),
-  status: z.string().min(1, 'Status is required'),
+  type: z.string().optional(),
 })
 
 type RoomFormProps = {
@@ -50,31 +55,47 @@ export function RoomForm({ room, mode }: RoomFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: room?.name || '',
-      capacity: String(room?.capacity || 30),
-      status: room?.status || 'Available',
+      name: '',
+      capacity: '',
+      type: '',
     },
   })
 
-  function onSubmit(_data: FormData) {
-    // TODO: Convert capacity to number when submitting to API
-    // const submitData = { ..._data, capacity: Number(_data.capacity) }
+  // Update form values when room data is loaded
+  useEffect(() => {
+    if (room) {
+      form.reset({
+        name: room.name || '',
+        capacity: room.capacity ? String(room.capacity) : '',
+        type: room.type ? String(room.type) : '',
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room])
+
+  async function onSubmit(data: FormData) {
     setIsLoading(true)
 
-    toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 1000)),
-      {
-        loading: mode === 'create' ? 'Creating room...' : 'Updating room...',
-        success: () => {
-          setIsLoading(false)
-          navigate({ to: '/rooms' as any })
-          return mode === 'create'
-            ? 'Room created successfully!'
-            : 'Room updated successfully!'
-        },
-        error: 'An error occurred',
+    try {
+      const requestData = {
+        name: data.name,
+        capacity: data.capacity ? Number(data.capacity) : null,
+        type: data.type ? Number(data.type) : null,
       }
-    )
+
+      if (mode === 'create') {
+        await roomsService.create(requestData)
+        toast.success('Room created successfully!')
+      } else if (room) {
+        await roomsService.update(room.id, requestData)
+        toast.success('Room updated successfully!')
+      }
+      setIsLoading(false)
+      navigate({ to: '/rooms' as any })
+    } catch (error) {
+      setIsLoading(false)
+      toast.error('An error occurred')
+    }
   }
 
   return (
@@ -116,25 +137,34 @@ export function RoomForm({ room, mode }: RoomFormProps) {
         />
         <FormField
           control={form.control}
-          name='status'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select status' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value='Available'>Available</SelectItem>
-                  <SelectItem value='Occupied'>Occupied</SelectItem>
-                  <SelectItem value='Maintenance'>Maintenance</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+          name='type'
+          render={({ field }) => {
+            const currentValue = field.value || ''
+            return (
+              <FormItem>
+                <FormLabel>Type</FormLabel>
+                <Select 
+                  key={`room-type-${currentValue}-${room?.id || 'new'}`}
+                  onValueChange={field.onChange} 
+                  value={currentValue || undefined}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Select room type' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {ROOM_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )
+          }}
         />
         <div className='flex justify-end gap-2'>
           <Button

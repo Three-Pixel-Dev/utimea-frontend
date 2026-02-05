@@ -1,26 +1,63 @@
+import { apiClient, type ApiResponse, type PaginationResponse, type PageAndFilter } from '@/lib/api-client'
+
 export type Room = {
   id: number
   name: string
-  capacity: number
-  status: string
+  capacity: number | null
+  type: number | null
+  masterData: {
+    id: number
+    createdBy: number | null
+    updatedBy: number | null
+    createdAt: string
+    updatedAt: string
+  }
+}
+
+export type RoomRequest = {
+  name: string
+  capacity: number | null
+  type: number | null
+}
+
+export type RoomFilter = {
+  name?: string
+  capacity?: number
+  type?: number
 }
 
 export const roomsService = {
-  getAll: async (): Promise<Room[]> => {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          { id: 1, name: 'Room 101', capacity: 30, status: 'Available' },
-          { id: 2, name: 'Room 102', capacity: 25, status: 'Occupied' },
-          { id: 3, name: 'Room 103', capacity: 40, status: 'Available' },
-          { id: 4, name: 'Room 201', capacity: 35, status: 'Available' },
-          { id: 5, name: 'Room 202', capacity: 20, status: 'Maintenance' },
-          { id: 6, name: 'Room 203', capacity: 45, status: 'Available' },
-          { id: 7, name: 'Room 301', capacity: 50, status: 'Available' },
-          { id: 8, name: 'Room 302', capacity: 30, status: 'Occupied' },
-        ])
-      }, 100)
-    })
+  getAll: async (pageAndFilter?: PageAndFilter<RoomFilter>): Promise<PaginationResponse<Room>> => {
+    const requestBody: PageAndFilter<RoomFilter> = {
+      page: pageAndFilter?.page ?? 0,
+      size: pageAndFilter?.size ?? 10,
+      sortBy: pageAndFilter?.sortBy,
+      sortDirection: pageAndFilter?.sortDirection ?? 'ASC',
+      filter: pageAndFilter?.filter,
+    }
+    const response = await apiClient.post<ApiResponse<PaginationResponse<Room>>>(
+      '/api/rooms/pageable',
+      requestBody
+    )
+    return response.data.data
+  },
+
+  getById: async (id: number): Promise<Room> => {
+    const response = await apiClient.get<ApiResponse<Room>>(`/api/rooms/${id}`)
+    return response.data.data as Room
+  },
+
+  create: async (room: RoomRequest): Promise<Room> => {
+    const response = await apiClient.post<ApiResponse<Room>>('/api/rooms', room)
+    return response.data.data as Room
+  },
+
+  update: async (id: number, room: RoomRequest): Promise<Room> => {
+    const response = await apiClient.put<ApiResponse<Room>>(`/api/rooms/${id}`, room)
+    return response.data.data as Room
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/api/rooms/${id}`)
   },
 }

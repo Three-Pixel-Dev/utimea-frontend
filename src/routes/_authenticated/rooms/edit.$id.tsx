@@ -7,12 +7,10 @@ import { roomsService } from '@/features/rooms/rooms-service'
 export const Route = createFileRoute('/_authenticated/rooms/edit/$id')({
   component: () => {
     const { id } = Route.useParams()
-    const { data: rooms } = useQuery({
-      queryKey: ['rooms'],
-      queryFn: () => roomsService.getAll(),
+    const { data: room } = useQuery({
+      queryKey: ['room', id],
+      queryFn: () => roomsService.getById(Number(id)),
     })
-
-    const room = rooms?.find((r) => r.id === Number(id))
 
     return (
       <AdminFormLayout

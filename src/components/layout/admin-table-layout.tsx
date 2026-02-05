@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef, type PaginationState } from '@tanstack/react-table'
 import {
   Card,
   CardContent,
@@ -22,6 +22,11 @@ type AdminTableLayoutProps<TData> = {
   searchKey?: string
   searchPlaceholder?: string
   createPath: string
+  // Server-side pagination props
+  pageCount?: number
+  totalItems?: number
+  onPaginationChange?: (pagination: PaginationState) => void
+  pagination?: PaginationState
 }
 
 export function AdminTableLayout<TData>({
@@ -34,6 +39,10 @@ export function AdminTableLayout<TData>({
   searchKey,
   searchPlaceholder = 'Search...',
   createPath,
+  pageCount,
+  totalItems,
+  onPaginationChange,
+  pagination,
 }: AdminTableLayoutProps<TData>) {
   const navigate = useNavigate()
 
@@ -61,6 +70,10 @@ export function AdminTableLayout<TData>({
             data={data}
             searchKey={searchKey}
             searchPlaceholder={searchPlaceholder}
+            pageCount={pageCount}
+            totalItems={totalItems}
+            onPaginationChange={onPaginationChange}
+            pagination={pagination}
           />
         </CardContent>
       </Card>

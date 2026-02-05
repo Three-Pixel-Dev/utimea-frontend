@@ -1,159 +1,191 @@
+import { apiClient, type ApiResponse, type PaginationResponse, type PageAndFilter } from '@/lib/api-client'
+
 export type Code = {
   id: number
   name: string
-  systemDefined: boolean
+  constantValue: string
+  systemDefined: boolean // Frontend-only field, defaults to false
+  masterData: {
+    id: number
+    createdBy: number | null
+    updatedBy: number | null
+    createdAt: string
+    updatedAt: string
+  }
 }
 
 export type CodeValue = {
   id: number
   codeId: number
-  name: string
-  description: string
-  position: number
-  active: boolean
+  codeName?: string
+  codeValue: string
+  name: string // Alias for codeValue for backward compatibility
+  description: string | null
+  position?: number // Optional, not in backend
+  active?: boolean // Optional, not in backend
+  masterData: {
+    id: number
+    createdBy: number | null
+    updatedBy: number | null
+    createdAt: string
+    updatedAt: string
+  }
 }
 
-// Mock data
-const mockCodes: Code[] = [
-  { id: 1, name: 'Batch', systemDefined: false },
-  { id: 2, name: 'Academic Year', systemDefined: false },
-  { id: 3, name: 'Major Section Year', systemDefined: false },
-]
+export type CodeValueListResponse = {
+  id: number
+  codeId: number
+  codeValue: string
+  description: string | null
+}
 
-const mockCodeValues: Record<number, CodeValue[]> = {
-  1: [
-    { id: 1, codeId: 1, name: 'Batch 2024', description: 'Batch 2024', position: 0, active: true },
-    { id: 2, codeId: 1, name: 'Batch 2025', description: 'Batch 2025', position: 1, active: true },
-  ],
-  2: [
-    { id: 1, codeId: 2, name: '2023-2024', description: 'Academic Year 2023-2024', position: 0, active: true },
-    { id: 2, codeId: 2, name: '2024-2025', description: 'Academic Year 2024-2025', position: 1, active: true },
-  ],
-  3: [
-    { id: 1, codeId: 3, name: 'First Year', description: 'Major Section Year - First Year', position: 0, active: true },
-    { id: 2, codeId: 3, name: 'Second Year', description: 'Major Section Year - Second Year', position: 1, active: true },
-  ],
+export type CodeRequest = {
+  name: string
+  constantValue: string
+}
+
+export type CodeFilter = {
+  name?: string
+  constantValue?: string
+}
+
+export type CodeValueRequest = {
+  codeId: number
+  name: string
+}
+
+export type CodeValueFilter = {
+  codeId?: number
+  name?: string
 }
 
 export const codesService = {
-  getAll: async (): Promise<Code[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockCodes)
-      }, 100)
-    })
+  getAll: async (pageAndFilter?: PageAndFilter<CodeFilter>): Promise<PaginationResponse<Code>> => {
+    const requestBody: PageAndFilter<CodeFilter> = {
+      page: pageAndFilter?.page ?? 0,
+      size: pageAndFilter?.size ?? 10,
+      sortBy: pageAndFilter?.sortBy,
+      sortDirection: pageAndFilter?.sortDirection ?? 'ASC',
+      filter: pageAndFilter?.filter,
+    }
+    const response = await apiClient.post<ApiResponse<PaginationResponse<Code>>>(
+      '/api/codes/pageable',
+      requestBody
+    )
+    // Map backend response to include systemDefined field (defaults to false)
+    const data = response.data.data
+    return {
+      ...data,
+      content: data.content.map((code) => ({
+        ...code,
+        systemDefined: false, // Can be enhanced later with logic based on constantValue
+      })),
+    }
   },
 
   getById: async (id: number): Promise<Code | undefined> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockCodes.find((code) => code.id === id))
-      }, 100)
-    })
+    const response = await apiClient.get<ApiResponse<Code>>(`/api/codes/${id}`)
+    const code = response.data.data as Code
+    return {
+      ...code,
+      systemDefined: false,
+    }
   },
 
-  create: async (code: Omit<Code, 'id'>): Promise<Code> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newCode: Code = {
-          id: mockCodes.length + 1,
-          ...code,
-        }
-        mockCodes.push(newCode)
-        resolve(newCode)
-      }, 100)
-    })
+  create: async (code: CodeRequest): Promise<Code> => {
+    const response = await apiClient.post<ApiResponse<Code>>('/api/codes', code)
+    const createdCode = response.data.data as Code
+    return {
+      ...createdCode,
+      systemDefined: false,
+    }
   },
 
-  update: async (id: number, code: Partial<Code>): Promise<Code> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const index = mockCodes.findIndex((c) => c.id === id)
-        if (index === -1) {
-          reject(new Error('Code not found'))
-          return
-        }
-        mockCodes[index] = { ...mockCodes[index], ...code }
-        resolve(mockCodes[index])
-      }, 100)
-    })
+  update: async (id: number, code: CodeRequest): Promise<Code> => {
+    const response = await apiClient.put<ApiResponse<Code>>(`/api/codes/${id}`, code)
+    const updatedCode = response.data.data as Code
+    return {
+      ...updatedCode,
+      systemDefined: false,
+    }
   },
 
   delete: async (id: number): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const index = mockCodes.findIndex((c) => c.id === id)
-        if (index === -1) {
-          reject(new Error('Code not found'))
-          return
-        }
-        mockCodes.splice(index, 1)
-        resolve()
-      }, 100)
-    })
+    await apiClient.delete(`/api/codes/${id}`)
   },
 
-  getCodeValues: async (codeId: number): Promise<CodeValue[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockCodeValues[codeId] || [])
-      }, 100)
-    })
+  getCodeValues: async (codeId: number, pageAndFilter?: PageAndFilter<CodeValueFilter>): Promise<PaginationResponse<CodeValue>> => {
+    const requestBody: PageAndFilter<CodeValueFilter> = {
+      page: pageAndFilter?.page ?? 0,
+      size: pageAndFilter?.size ?? 10, // Default to 10 rows per page
+      sortBy: pageAndFilter?.sortBy,
+      sortDirection: pageAndFilter?.sortDirection ?? 'ASC',
+      filter: {
+        ...pageAndFilter?.filter,
+        codeId,
+      },
+    }
+    const response = await apiClient.post<ApiResponse<PaginationResponse<CodeValue>>>(
+      '/api/code-values/pageable',
+      requestBody
+    )
+    // Map backend response to include name alias and optional fields
+    const data = response.data.data
+    return {
+      ...data,
+      content: data.content.map((cv) => ({
+        ...cv,
+        name: cv.codeValue, // Alias for backward compatibility
+        position: 0, // Default value, not in backend
+        active: true, // Default value, not in backend
+      })),
+    }
   },
 
-  getCodeValueById: async (codeId: number, valueId: number): Promise<CodeValue | undefined> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const values = mockCodeValues[codeId] || []
-        resolve(values.find((v) => v.id === valueId))
-      }, 100)
-    })
+  getCodeValuesByConstantValue: async (constantValue: string): Promise<CodeValueListResponse[]> => {
+    const response = await apiClient.get<ApiResponse<CodeValueListResponse[]>>(
+      `/api/code-values/constant-value/${constantValue}`
+    )
+    return response.data.data as CodeValueListResponse[]
   },
 
-  createCodeValue: async (codeId: number, value: Omit<CodeValue, 'id' | 'codeId'>): Promise<CodeValue> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (!mockCodeValues[codeId]) {
-          mockCodeValues[codeId] = []
-        }
-        const newValue: CodeValue = {
-          id: (mockCodeValues[codeId].length + 1) * 100 + codeId,
-          codeId,
-          ...value,
-        }
-        mockCodeValues[codeId].push(newValue)
-        resolve(newValue)
-      }, 100)
-    })
+  getCodeValueById: async (id: number): Promise<CodeValue | undefined> => {
+    const response = await apiClient.get<ApiResponse<CodeValue>>(`/api/code-values/${id}`)
+    const cv = response.data.data as CodeValue
+    return {
+      ...cv,
+      name: cv.codeValue, // Alias for backward compatibility
+      position: 0, // Default value, not in backend
+      active: true, // Default value, not in backend
+    }
   },
 
-  updateCodeValue: async (codeId: number, valueId: number, value: Partial<CodeValue>): Promise<CodeValue> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const values = mockCodeValues[codeId] || []
-        const index = values.findIndex((v) => v.id === valueId)
-        if (index === -1) {
-          reject(new Error('Code value not found'))
-          return
-        }
-        values[index] = { ...values[index], ...value }
-        resolve(values[index])
-      }, 100)
+  createCodeValue: async (codeId: number, value: CodeValueRequest): Promise<CodeValue> => {
+    const response = await apiClient.post<ApiResponse<CodeValue>>('/api/code-values', {
+      codeId,
+      name: value.name,
     })
+    const cv = response.data.data as CodeValue
+    return {
+      ...cv,
+      name: cv.codeValue, // Alias for backward compatibility
+      position: 0, // Default value, not in backend
+      active: true, // Default value, not in backend
+    }
   },
 
-  deleteCodeValue: async (codeId: number, valueId: number): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const values = mockCodeValues[codeId] || []
-        const index = values.findIndex((v) => v.id === valueId)
-        if (index === -1) {
-          reject(new Error('Code value not found'))
-          return
-        }
-        values.splice(index, 1)
-        resolve()
-      }, 100)
-    })
+  updateCodeValue: async (id: number, value: CodeValueRequest): Promise<CodeValue> => {
+    const response = await apiClient.put<ApiResponse<CodeValue>>(`/api/code-values/${id}`, value)
+    const cv = response.data.data as CodeValue
+    return {
+      ...cv,
+      name: cv.codeValue, // Alias for backward compatibility
+      position: 0, // Default value, not in backend
+      active: true, // Default value, not in backend
+    }
+  },
+
+  deleteCodeValue: async (id: number): Promise<void> => {
+    await apiClient.delete(`/api/code-values/${id}`)
   },
 }

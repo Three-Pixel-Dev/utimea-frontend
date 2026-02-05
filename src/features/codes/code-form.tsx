@@ -15,12 +15,11 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Code } from './codes-service'
+import { Code, codesService } from './codes-service'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Code name is required'),
-  systemDefined: z.boolean(),
+  constantValue: z.string().min(1, 'Constant value is required'),
 })
 
 type CodeFormProps = {
@@ -38,27 +37,33 @@ export function CodeForm({ code, mode }: CodeFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: code?.name || '',
-      systemDefined: code?.systemDefined || false,
+      constantValue: code?.constantValue || '',
     },
   })
 
-  function onSubmit(_data: FormData) {
+  async function onSubmit(data: FormData) {
     setIsLoading(true)
 
-    toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 1000)),
-      {
-        loading: mode === 'create' ? 'Creating code...' : 'Updating code...',
-        success: () => {
-          setIsLoading(false)
-          navigate({ to: '/codes' as any })
-          return mode === 'create'
-            ? 'Code created successfully!'
-            : 'Code updated successfully!'
-        },
-        error: 'An error occurred',
+    try {
+      if (mode === 'create') {
+        await codesService.create({
+          name: data.name,
+          constantValue: data.constantValue,
+        })
+        toast.success('Code created successfully!')
+      } else if (code) {
+        await codesService.update(code.id, {
+          name: data.name,
+          constantValue: data.constantValue,
+        })
+        toast.success('Code updated successfully!')
       }
-    )
+      setIsLoading(false)
+      navigate({ to: '/codes' as any })
+    } catch (error) {
+      setIsLoading(false)
+      toast.error('An error occurred')
+    }
   }
 
   return (
@@ -71,7 +76,7 @@ export function CodeForm({ code, mode }: CodeFormProps) {
             <FormItem>
               <FormLabel>Code Name</FormLabel>
               <FormControl>
-                <Input placeholder='ADDRESS_TYPE' {...field} />
+                <Input placeholder='Enter code name' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -79,18 +84,14 @@ export function CodeForm({ code, mode }: CodeFormProps) {
         />
         <FormField
           control={form.control}
-          name='systemDefined'
+          name='constantValue'
           render={({ field }) => (
-            <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+            <FormItem>
+              <FormLabel>Constant Value</FormLabel>
               <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
+                <Input placeholder='Enter constant value' {...field} disabled />
               </FormControl>
-              <div className='space-y-1 leading-none'>
-                <FormLabel>System Defined</FormLabel>
-              </div>
+              <FormMessage />
             </FormItem>
           )}
         />

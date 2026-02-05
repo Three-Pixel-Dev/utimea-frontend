@@ -7,12 +7,10 @@ import { codesService } from '@/features/codes/codes-service'
 export const Route = createFileRoute('/_authenticated/codes/edit/$id')({
   component: () => {
     const { id } = Route.useParams()
-    const { data: codes } = useQuery({
-      queryKey: ['codes'],
-      queryFn: () => codesService.getAll(),
+    const { data: code } = useQuery({
+      queryKey: ['code', id],
+      queryFn: () => codesService.getById(Number(id)),
     })
-
-    const code = codes?.find((c) => c.id === Number(id))
 
     return (
       <AdminFormLayout

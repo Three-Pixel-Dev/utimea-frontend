@@ -7,12 +7,10 @@ import { majorSectionsService } from '@/features/major-sections/major-sections-s
 export const Route = createFileRoute('/_authenticated/major-sections/edit/$id')({
   component: () => {
     const { id } = Route.useParams()
-    const { data: majorSections } = useQuery({
-      queryKey: ['majorSections'],
-      queryFn: () => majorSectionsService.getAll(),
+    const { data: majorSection } = useQuery({
+      queryKey: ['majorSection', id],
+      queryFn: () => majorSectionsService.getById(Number(id)),
     })
-
-    const majorSection = majorSections?.find((s) => s.id === Number(id))
 
     return (
       <AdminFormLayout

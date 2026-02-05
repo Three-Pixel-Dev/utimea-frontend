@@ -1,73 +1,63 @@
+import { apiClient, type ApiResponse, type PaginationResponse, type PageAndFilter } from '@/lib/api-client'
+
 export type MajorSection = {
   id: number
   name: string
-  majorSectionYear: string
+  majorSectionYear: {
+    id: number
+    name: string
+  } | null
+  masterData: {
+    id: number
+    createdBy: number | null
+    updatedBy: number | null
+    createdAt: string
+    updatedAt: string
+  }
 }
 
-// Mock data
-const mockMajorSections: MajorSection[] = [
-  { id: 1, name: 'Computer Science - Year 1', majorSectionYear: 'First Year' },
-  { id: 2, name: 'Computer Science - Year 2', majorSectionYear: 'Second Year' },
-  { id: 3, name: 'Engineering - Year 1', majorSectionYear: 'First Year' },
-  { id: 4, name: 'Engineering - Year 2', majorSectionYear: 'Second Year' },
-  { id: 5, name: 'Business - Year 1', majorSectionYear: 'First Year' },
-]
+export type MajorSectionRequest = {
+  name: string
+  majorSectionYearId: number | null
+}
+
+export type MajorSectionFilter = {
+  name?: string
+  majorSectionYearId?: number
+}
 
 export const majorSectionsService = {
-  getAll: async (): Promise<MajorSection[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockMajorSections)
-      }, 100)
-    })
+  getAll: async (pageAndFilter?: PageAndFilter<MajorSectionFilter>): Promise<PaginationResponse<MajorSection>> => {
+    const requestBody: PageAndFilter<MajorSectionFilter> = {
+      page: pageAndFilter?.page ?? 0,
+      size: pageAndFilter?.size ?? 10,
+      sortBy: pageAndFilter?.sortBy,
+      sortDirection: pageAndFilter?.sortDirection ?? 'ASC',
+      filter: pageAndFilter?.filter,
+    }
+    const response = await apiClient.post<ApiResponse<PaginationResponse<MajorSection>>>(
+      '/api/major-sections/pageable',
+      requestBody
+    )
+    return response.data.data
   },
 
-  getById: async (id: number): Promise<MajorSection | undefined> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockMajorSections.find((section) => section.id === id))
-      }, 100)
-    })
+  getById: async (id: number): Promise<MajorSection> => {
+    const response = await apiClient.get<ApiResponse<MajorSection>>(`/api/major-sections/${id}`)
+    return response.data.data as MajorSection
   },
 
-  create: async (section: Omit<MajorSection, 'id'>): Promise<MajorSection> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newSection: MajorSection = {
-          id: mockMajorSections.length + 1,
-          ...section,
-        }
-        mockMajorSections.push(newSection)
-        resolve(newSection)
-      }, 100)
-    })
+  create: async (majorSection: MajorSectionRequest): Promise<MajorSection> => {
+    const response = await apiClient.post<ApiResponse<MajorSection>>('/api/major-sections', majorSection)
+    return response.data.data as MajorSection
   },
 
-  update: async (id: number, section: Partial<MajorSection>): Promise<MajorSection> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const index = mockMajorSections.findIndex((s) => s.id === id)
-        if (index === -1) {
-          reject(new Error('Major section not found'))
-          return
-        }
-        mockMajorSections[index] = { ...mockMajorSections[index], ...section }
-        resolve(mockMajorSections[index])
-      }, 100)
-    })
+  update: async (id: number, majorSection: MajorSectionRequest): Promise<MajorSection> => {
+    const response = await apiClient.put<ApiResponse<MajorSection>>(`/api/major-sections/${id}`, majorSection)
+    return response.data.data as MajorSection
   },
 
   delete: async (id: number): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const index = mockMajorSections.findIndex((s) => s.id === id)
-        if (index === -1) {
-          reject(new Error('Major section not found'))
-          return
-        }
-        mockMajorSections.splice(index, 1)
-        resolve()
-      }, 100)
-    })
+    await apiClient.delete(`/api/major-sections/${id}`)
   },
 }

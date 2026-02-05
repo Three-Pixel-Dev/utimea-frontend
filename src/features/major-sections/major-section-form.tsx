@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { MajorSection } from './major-sections-service'
+import { MajorSection, majorSectionsService } from './major-sections-service'
 import { codesService } from '@/features/codes/codes-service'
 
 const formSchema = z.object({
@@ -41,38 +41,66 @@ export function MajorSectionForm({ majorSection, mode }: MajorSectionFormProps) 
   const navigate = useNavigate()
 
   // Fetch Major Section Year code values (codeId: 3)
-  const { data: majorSectionYearValues = [] } = useQuery({
+  const { data: majorSectionYearPagination } = useQuery({
     queryKey: ['codeValues', 3],
     queryFn: () => codesService.getCodeValues(3),
   })
+
+  const majorSectionYearValues = majorSectionYearPagination?.content || []
 
   type FormData = z.infer<typeof formSchema>
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: majorSection?.name || '',
-      majorSectionYear: majorSection?.majorSectionYear || '',
+      name: '',
+      majorSectionYear: '',
     },
   })
 
-  function onSubmit(_data: FormData) {
+  // Update form values when majorSection data is loaded and code values are available
+  useEffect(() => {
+    if (majorSection && majorSectionYearValues.length > 0) {
+      const majorSectionYearId = majorSection.majorSectionYear?.id
+      // Reset form with all values at once to ensure proper binding
+      // Only set if we have a valid ID and the option exists in the list
+      const validId = majorSectionYearId && majorSectionYearValues.some(
+        v => v.id === majorSectionYearId
+      ) ? majorSectionYearId.toString() : ''
+      
+      form.reset({
+        name: majorSection.name || '',
+        majorSectionYear: validId,
+      })
+    } else if (majorSection) {
+      // If majorSection is loaded but code values aren't ready, just set the name
+      form.setValue('name', majorSection.name || '')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [majorSection, majorSectionYearValues.length])
+
+  async function onSubmit(data: FormData) {
     setIsLoading(true)
 
-    toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 1000)),
-      {
-        loading: mode === 'create' ? 'Creating major section...' : 'Updating major section...',
-        success: () => {
-          setIsLoading(false)
-          navigate({ to: '/major-sections' as any })
-          return mode === 'create'
-            ? 'Major section created successfully!'
-            : 'Major section updated successfully!'
-        },
-        error: 'An error occurred',
+    try {
+      const requestData = {
+        name: data.name,
+        majorSectionYearId: data.majorSectionYear ? Number(data.majorSectionYear) : null,
       }
-    )
+
+      if (mode === 'create') {
+        await majorSectionsService.create(requestData)
+        toast.success('Major section created successfully!')
+      } else if (majorSection) {
+        await majorSectionsService.update(majorSection.id, requestData)
+        toast.success('Major section updated successfully!')
+      }
+      setIsLoading(false)
+      navigate({ to: '/major-sections' as any })
+    } catch (error) {
+      setIsLoading(false)
+      toast.error('An error occurred')
+    }
   }
 
   return (
@@ -94,28 +122,36 @@ export function MajorSectionForm({ majorSection, mode }: MajorSectionFormProps) 
         <FormField
           control={form.control}
           name='majorSectionYear'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Major Section Year</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select major section year' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {majorSectionYearValues
-                    .filter((value) => value.active)
-                    .map((value) => (
-                      <SelectItem key={value.id} value={value.name}>
-                        {value.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field }) => {
+            const currentValue = field.value || ''
+            return (
+              <FormItem>
+                <FormLabel>Major Section Year</FormLabel>
+                <Select 
+                  key={`select-${majorSectionYearValues.length}-${currentValue}`}
+                  onValueChange={field.onChange} 
+                  value={currentValue || undefined}
+                  disabled={majorSectionYearValues.length === 0}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Select major section year' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {majorSectionYearValues
+                      .filter((value) => value.active !== false)
+                      .map((value) => (
+                        <SelectItem key={value.id} value={value.id.toString()}>
+                          {value.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )
+          }}
         />
         <div className='flex justify-end gap-2'>
           <Button

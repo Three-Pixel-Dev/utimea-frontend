@@ -40,6 +40,10 @@ export const majorSectionsTableColumns: ColumnDef<MajorSection>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Major Section Year' />
     ),
+    cell: ({ row }) => {
+      const majorSectionYear = row.original.majorSectionYear
+      return majorSectionYear ? majorSectionYear.name : '-'
+    },
     enableSorting: true,
     enableHiding: true,
   },
