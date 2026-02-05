@@ -23,15 +23,14 @@ export function Codes() {
 
   return (
     <AdminTableLayout
-      title='Codes'
-      description='View and manage all codes in the system.'
-      cardTitle='Code List'
-      cardDescription='A list of all available codes'
+      title='System Data'
+      description='View and manage all system data in the system.'
+      cardTitle='System Data List'
+      cardDescription='A list of all available system data'
       columns={codesTableColumns}
       data={codes}
       searchKey='name'
-      searchPlaceholder='Filter codes...'
-      createPath='/codes/new'
+      searchPlaceholder='Filter system data...'
       pageCount={paginationData?.totalPages}
       totalItems={paginationData?.totalItems}
       pagination={pagination}

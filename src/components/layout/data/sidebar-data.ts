@@ -45,7 +45,7 @@ export const sidebarData: SidebarData = {
           icon: BookOpen,
         },
         {
-          title: 'View Codes',
+          title: 'View System Data',
           url: '/codes',
           icon: Code2,
         },

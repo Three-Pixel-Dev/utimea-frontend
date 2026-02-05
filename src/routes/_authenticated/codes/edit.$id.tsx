@@ -14,10 +14,10 @@ export const Route = createFileRoute('/_authenticated/codes/edit/$id')({
 
     return (
       <AdminFormLayout
-        title='Edit Code'
-        description='Update code information.'
-        cardTitle='Edit Code'
-        cardDescription='Update the code details'
+        title='Edit System Data'
+        description='Update system data information.'
+        cardTitle='Edit System Data'
+        cardDescription='Update the system data details'
         backPath='/codes'
       >
         {code ? (

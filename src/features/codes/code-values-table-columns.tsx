@@ -23,17 +23,6 @@ export function createCodeValuesTableColumns({
       enableSorting: true,
     },
     {
-      accessorKey: 'description',
-      header: 'Description',
-    },
-    {
-      accessorKey: 'position',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Position' />
-      ),
-      enableSorting: true,
-    },
-    {
       accessorKey: 'active',
       header: 'Active',
       cell: ({ row }) => (

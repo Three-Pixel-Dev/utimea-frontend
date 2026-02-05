@@ -49,7 +49,7 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
   }
 
   const handleDeleteCode = () => {
-    if (!confirm('Are you sure you want to delete this code? This will also delete all code values.')) {
+    if (!confirm('Are you sure you want to delete this system data? This will also delete all code values.')) {
       return
     }
 
@@ -59,9 +59,9 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
         navigate({ to: '/codes' as any })
       }),
       {
-        loading: 'Deleting code...',
-        success: 'Code deleted successfully!',
-        error: 'Failed to delete code',
+        loading: 'Deleting system data...',
+        success: 'System data deleted successfully!',
+        error: 'Failed to delete system data',
       }
     )
   }
@@ -103,7 +103,7 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
   return (
     <AdminLayout
       title={code.name}
-      description='Manage code values for this code'
+      description='Manage code values for this system data'
     >
       <Card>
         <CardHeader>
@@ -126,7 +126,7 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
                 variant='outline'
               >
                 <Pencil className='mr-2 h-4 w-4' />
-                Edit Code
+                Edit System Data
               </Button>
               <Button
                 onClick={handleDeleteCode}
@@ -134,7 +134,7 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
                 variant='destructive'
               >
                 <Trash2 className='mr-2 h-4 w-4' />
-                Delete Code
+                Delete System Data
               </Button>
             </div>
           </div>

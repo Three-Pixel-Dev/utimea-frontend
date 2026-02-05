@@ -12,7 +12,7 @@ export const Route = createFileRoute('/_authenticated/codes/$id/values/edit/$val
 
     const { data: codeValue } = useQuery({
       queryKey: ['codeValue', codeId, codeValueId],
-      queryFn: () => codesService.getCodeValueById(codeId, codeValueId),
+      queryFn: () => codesService.getCodeValueById(codeValueId),
     })
 
     return (

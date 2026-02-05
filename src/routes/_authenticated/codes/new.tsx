@@ -5,10 +5,10 @@ import { CodeForm } from '@/features/codes/code-form'
 export const Route = createFileRoute('/_authenticated/codes/new')({
   component: () => (
     <AdminFormLayout
-      title='Create Code'
-      description='Add a new code to the system.'
-      cardTitle='Create New Code'
-      cardDescription='Fill in the details to create a new code'
+      title='Create System Data'
+      description='Add a new system data to the system.'
+      cardTitle='Create New System Data'
+      cardDescription='Fill in the details to create a new system data'
       backPath='/codes'
     >
       <CodeForm mode='create' />

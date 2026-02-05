@@ -21,7 +21,7 @@ type AdminTableLayoutProps<TData> = {
   data: TData[]
   searchKey?: string
   searchPlaceholder?: string
-  createPath: string
+  createPath?: string
   // Server-side pagination props
   pageCount?: number
   totalItems?: number
@@ -55,13 +55,15 @@ export function AdminTableLayout<TData>({
               <CardTitle>{cardTitle}</CardTitle>
               <CardDescription>{cardDescription}</CardDescription>
             </div>
-            <Button
-              onClick={() => navigate({ to: createPath as any })}
-              size='sm'
-            >
-              <Plus className='mr-2 h-4 w-4' />
-              Create New
-            </Button>
+            {createPath && (
+              <Button
+                onClick={() => navigate({ to: createPath as any })}
+                size='sm'
+              >
+                <Plus className='mr-2 h-4 w-4' />
+                Create New
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
