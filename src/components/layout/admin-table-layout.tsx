@@ -22,6 +22,7 @@ type AdminTableLayoutProps<TData> = {
   searchKey?: string
   searchPlaceholder?: string
   createPath?: string
+  headerActions?: React.ReactNode
   // Server-side pagination props
   pageCount?: number
   totalItems?: number
@@ -39,6 +40,7 @@ export function AdminTableLayout<TData>({
   searchKey,
   searchPlaceholder = 'Search...',
   createPath,
+  headerActions,
   pageCount,
   totalItems,
   onPaginationChange,
@@ -55,15 +57,18 @@ export function AdminTableLayout<TData>({
               <CardTitle>{cardTitle}</CardTitle>
               <CardDescription>{cardDescription}</CardDescription>
             </div>
-            {createPath && (
-              <Button
-                onClick={() => navigate({ to: createPath as any })}
-                size='sm'
-              >
-                <Plus className='mr-2 h-4 w-4' />
-                Create New
-              </Button>
-            )}
+            <div className='flex items-center gap-2'>
+              {headerActions}
+              {createPath && (
+                <Button
+                  onClick={() => navigate({ to: createPath as any })}
+                  size='sm'
+                >
+                  <Plus className='mr-2 h-4 w-4' />
+                  Create New
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>

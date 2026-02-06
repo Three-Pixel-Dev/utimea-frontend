@@ -69,4 +69,51 @@ export const studentsService = {
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/api/students/${id}`)
   },
+
+  // Excel operations (to be implemented with backend)
+  downloadTemplate: async (): Promise<void> => {
+    // TODO: Implement when backend is ready
+    // This should download an Excel template file
+    const response = await apiClient.get('/api/students/excel/template', {
+      responseType: 'blob',
+    })
+    // response.data is already a Blob when responseType is 'blob'
+    const url = window.URL.createObjectURL(response.data as Blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'students_template.xlsx')
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  },
+
+  exportToExcel: async (): Promise<void> => {
+    // TODO: Implement when backend is ready
+    // This should export all students to Excel
+    const response = await apiClient.get('/api/students/excel/export', {
+      responseType: 'blob',
+    })
+    // response.data is already a Blob when responseType is 'blob'
+    const url = window.URL.createObjectURL(response.data as Blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `students_export_${new Date().toISOString().split('T')[0]}.xlsx`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  },
+
+  importFromExcel: async (file: File): Promise<void> => {
+    // TODO: Implement when backend is ready
+    // This should upload and import students from Excel file
+    const formData = new FormData()
+    formData.append('file', file)
+    await apiClient.post('/api/students/excel/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
 }

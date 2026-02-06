@@ -21,8 +21,18 @@ apiClient.interceptors.request.use((config) => {
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Allow 206 Partial Content responses through (used for Excel import with errors)
+    if (response.status === 206) {
+      return response
+    }
+    return response
+  },
   (error) => {
+    // Handle 206 Partial Content in error handler as well (axios might treat it as error)
+    if (error.response?.status === 206) {
+      return Promise.resolve(error.response)
+    }
     if (error.response?.status === 401) {
       useAuthStore.getState().auth.reset()
     }
