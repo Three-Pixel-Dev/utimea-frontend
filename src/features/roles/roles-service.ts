@@ -25,7 +25,7 @@ export const rolesService = {
     const requestBody: PageAndFilter<RoleFilter> = {
       page: pageAndFilter?.page ?? 0,
       size: pageAndFilter?.size ?? 10,
-      sortBy: pageAndFilter?.sortBy,
+      sortBy: pageAndFilter?.sortBy ?? 'id',
       sortDirection: pageAndFilter?.sortDirection ?? 'ASC',
       filter: pageAndFilter?.filter,
     }

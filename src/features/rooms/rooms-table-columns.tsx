@@ -5,12 +5,6 @@ import { DataTableColumnHeader } from '@/components/data-table/column-header'
 import { Button } from '@/components/ui/button'
 import { Room } from './rooms-service'
 
-const getRoomTypeLabel = (type: number | null): string => {
-  if (type === 1) return 'Lecture'
-  if (type === 2) return 'PC'
-  return '-'
-}
-
 function RoomActions({ id }: { id: number }) {
   const navigate = useNavigate()
 
@@ -29,9 +23,14 @@ function RoomActions({ id }: { id: number }) {
 
 export const roomsTableColumns: ColumnDef<Room>[] = [
   {
-    accessorKey: 'id',
-    header: 'ID',
+    id: 'index',
+    header: '#',
+    cell: ({ row, table }) => {
+      const { pageIndex, pageSize } = table.getState().pagination
+      return pageIndex * pageSize + row.index + 1
+    },
     enableHiding: false,
+    enableSorting: false,
   },
   {
     accessorKey: 'name',
@@ -50,11 +49,14 @@ export const roomsTableColumns: ColumnDef<Room>[] = [
     enableHiding: true,
   },
   {
-    accessorKey: 'type',
+    accessorKey: 'roomType',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Type' />
+      <DataTableColumnHeader column={column} title='Room Type' />
     ),
-    cell: ({ row }) => getRoomTypeLabel(row.original.type),
+    cell: ({ row }) => {
+      const roomType = row.original.roomType
+      return roomType ? roomType.name : '-'
+    },
     enableSorting: true,
     enableHiding: true,
   },

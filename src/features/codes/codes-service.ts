@@ -21,6 +21,7 @@ export type CodeValue = {
   codeValue: string
   name: string // Alias for codeValue for backward compatibility
   description: string | null
+  systemDefined?: boolean
   position?: number // Optional, not in backend
   active?: boolean // Optional, not in backend
   masterData: {
@@ -37,6 +38,7 @@ export type CodeValueListResponse = {
   codeId: number
   codeValue: string
   description: string | null
+  systemDefined?: boolean
 }
 
 export type CodeRequest = {
@@ -52,6 +54,7 @@ export type CodeFilter = {
 export type CodeValueRequest = {
   codeId: number
   name: string
+  systemDefined?: boolean
 }
 
 export type CodeValueFilter = {
@@ -64,7 +67,7 @@ export const codesService = {
     const requestBody: PageAndFilter<CodeFilter> = {
       page: pageAndFilter?.page ?? 0,
       size: pageAndFilter?.size ?? 10,
-      sortBy: pageAndFilter?.sortBy,
+      sortBy: pageAndFilter?.sortBy ?? 'id',
       sortDirection: pageAndFilter?.sortDirection ?? 'ASC',
       filter: pageAndFilter?.filter,
     }
@@ -98,7 +101,7 @@ export const codesService = {
     const requestBody: PageAndFilter<CodeValueFilter> = {
       page: pageAndFilter?.page ?? 0,
       size: pageAndFilter?.size ?? 10, // Default to 10 rows per page
-      sortBy: pageAndFilter?.sortBy,
+      sortBy: pageAndFilter?.sortBy ?? 'id',
       sortDirection: pageAndFilter?.sortDirection ?? 'ASC',
       filter: {
         ...pageAndFilter?.filter,
@@ -144,6 +147,7 @@ export const codesService = {
     const response = await apiClient.post<ApiResponse<CodeValue>>('/api/code-values', {
       codeId,
       name: value.name,
+      systemDefined: value.systemDefined ?? true,
     })
     const cv = response.data.data as CodeValue
     return {
@@ -155,7 +159,14 @@ export const codesService = {
   },
 
   updateCodeValue: async (id: number, value: CodeValueRequest): Promise<CodeValue> => {
-    const response = await apiClient.put<ApiResponse<CodeValue>>(`/api/code-values/${id}`, value)
+    const requestBody: CodeValueRequest = {
+      codeId: value.codeId,
+      name: value.name,
+    }
+    if (value.systemDefined !== undefined) {
+      requestBody.systemDefined = value.systemDefined
+    }
+    const response = await apiClient.put<ApiResponse<CodeValue>>(`/api/code-values/${id}`, requestBody)
     const cv = response.data.data as CodeValue
     return {
       ...cv,

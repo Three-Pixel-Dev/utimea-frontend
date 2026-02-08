@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -22,6 +22,7 @@ import { useQueryClient } from '@tanstack/react-query'
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   active: z.boolean(),
+  systemDefined: z.boolean(),
 })
 
 type CodeValueFormProps = {
@@ -42,8 +43,20 @@ export function CodeValueForm({ codeId, codeValue, mode }: CodeValueFormProps) {
     defaultValues: {
       name: codeValue?.name || '',
       active: codeValue?.active ?? true,
+      systemDefined: codeValue?.systemDefined !== undefined ? codeValue.systemDefined : true,
     },
   })
+
+  // Reset form when codeValue changes (for edit mode)
+  useEffect(() => {
+    if (codeValue && mode === 'edit') {
+      form.reset({
+        name: codeValue.name || '',
+        active: codeValue.active ?? true,
+        systemDefined: codeValue.systemDefined !== undefined ? codeValue.systemDefined : true,
+      })
+    }
+  }, [codeValue, mode, form])
 
   async function onSubmit(data: FormData) {
     setIsLoading(true)
@@ -53,12 +66,14 @@ export function CodeValueForm({ codeId, codeValue, mode }: CodeValueFormProps) {
         await codesService.createCodeValue(codeId, {
           codeId,
           name: data.name,
+          systemDefined: data.systemDefined,
         })
         toast.success('Code value created successfully!')
       } else if (codeValue) {
         await codesService.updateCodeValue(codeValue.id, {
           codeId,
           name: data.name,
+          systemDefined: data.systemDefined,
         })
         toast.success('Code value updated successfully!')
       }
@@ -100,6 +115,23 @@ export function CodeValueForm({ codeId, codeValue, mode }: CodeValueFormProps) {
               </FormControl>
               <div className='space-y-1 leading-none'>
                 <FormLabel>Active</FormLabel>
+              </div>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='systemDefined'
+          render={({ field }) => (
+            <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className='space-y-1 leading-none'>
+                <FormLabel>System Defined</FormLabel>
               </div>
             </FormItem>
           )}

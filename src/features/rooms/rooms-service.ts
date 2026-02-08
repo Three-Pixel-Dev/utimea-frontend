@@ -4,7 +4,10 @@ export type Room = {
   id: number
   name: string
   capacity: number | null
-  type: number | null
+  roomType: {
+    id: number
+    name: string
+  } | null
   masterData: {
     id: number
     createdBy: number | null
@@ -17,13 +20,13 @@ export type Room = {
 export type RoomRequest = {
   name: string
   capacity: number | null
-  type: number | null
+  roomTypeId: number | null
 }
 
 export type RoomFilter = {
   name?: string
   capacity?: number
-  type?: number
+  roomTypeId?: number
 }
 
 export const roomsService = {
@@ -31,7 +34,7 @@ export const roomsService = {
     const requestBody: PageAndFilter<RoomFilter> = {
       page: pageAndFilter?.page ?? 0,
       size: pageAndFilter?.size ?? 10,
-      sortBy: pageAndFilter?.sortBy,
+      sortBy: pageAndFilter?.sortBy ?? 'id',
       sortDirection: pageAndFilter?.sortDirection ?? 'ASC',
       filter: pageAndFilter?.filter,
     }

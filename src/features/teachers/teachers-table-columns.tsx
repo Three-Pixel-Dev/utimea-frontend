@@ -23,9 +23,14 @@ function TeacherActions({ id }: { id: number }) {
 
 export const teachersTableColumns: ColumnDef<Teacher>[] = [
   {
-    accessorKey: 'id',
-    header: 'ID',
+    id: 'index',
+    header: '#',
+    cell: ({ row, table }) => {
+      const { pageIndex, pageSize } = table.getState().pagination
+      return pageIndex * pageSize + row.index + 1
+    },
     enableHiding: false,
+    enableSorting: false,
   },
   {
     accessorKey: 'name',

@@ -23,9 +23,14 @@ function StudentActions({ id }: { id: number }) {
 
 export const studentsTableColumns: ColumnDef<Student>[] = [
   {
-    accessorKey: 'id',
-    header: 'ID',
+    id: 'index',
+    header: '#',
+    cell: ({ row, table }) => {
+      const { pageIndex, pageSize } = table.getState().pagination
+      return pageIndex * pageSize + row.index + 1
+    },
     enableHiding: false,
+    enableSorting: false,
   },
   {
     accessorKey: 'name',

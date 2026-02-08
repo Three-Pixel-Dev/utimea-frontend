@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -23,11 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Room, roomsService } from './rooms-service'
-
-const ROOM_TYPES = [
-  { value: '1', label: 'Lecture' },
-  { value: '2', label: 'PC' },
-] as const
+import { codesService } from '@/features/codes/codes-service'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -38,7 +35,7 @@ const formSchema = z.object({
       const num = Number(val)
       return !isNaN(num) && num >= 1
     }, 'Capacity must be at least 1'),
-  type: z.string().optional(),
+  roomTypeId: z.string().optional(),
 })
 
 type RoomFormProps = {
@@ -50,6 +47,11 @@ export function RoomForm({ room, mode }: RoomFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
+  const { data: roomTypes = [] } = useQuery({
+    queryKey: ['roomTypes'],
+    queryFn: () => codesService.getCodeValuesByConstantValue('ROOM_TYPE'),
+  })
+
   type FormData = z.infer<typeof formSchema>
 
   const form = useForm<FormData>({
@@ -57,7 +59,7 @@ export function RoomForm({ room, mode }: RoomFormProps) {
     defaultValues: {
       name: '',
       capacity: '',
-      type: '',
+      roomTypeId: '',
     },
   })
 
@@ -67,7 +69,7 @@ export function RoomForm({ room, mode }: RoomFormProps) {
       form.reset({
         name: room.name || '',
         capacity: room.capacity ? String(room.capacity) : '',
-        type: room.type ? String(room.type) : '',
+        roomTypeId: room.roomType?.id ? String(room.roomType.id) : '',
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,7 +82,7 @@ export function RoomForm({ room, mode }: RoomFormProps) {
       const requestData = {
         name: data.name,
         capacity: data.capacity ? Number(data.capacity) : null,
-        type: data.type ? Number(data.type) : null,
+        roomTypeId: data.roomTypeId ? Number(data.roomTypeId) : null,
       }
 
       if (mode === 'create') {
@@ -137,12 +139,12 @@ export function RoomForm({ room, mode }: RoomFormProps) {
         />
         <FormField
           control={form.control}
-          name='type'
+          name='roomTypeId'
           render={({ field }) => {
             const currentValue = field.value || ''
             return (
               <FormItem>
-                <FormLabel>Type</FormLabel>
+                <FormLabel>Room Type</FormLabel>
                 <Select 
                   key={`room-type-${currentValue}-${room?.id || 'new'}`}
                   onValueChange={field.onChange} 
@@ -154,9 +156,9 @@ export function RoomForm({ room, mode }: RoomFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {ROOM_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
+                    {roomTypes.map((roomType) => (
+                      <SelectItem key={roomType.id} value={String(roomType.id)}>
+                        {roomType.codeValue}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -30,6 +30,15 @@ export function createCodeValuesTableColumns({
       ),
     },
     {
+      accessorKey: 'systemDefined',
+      header: 'System Defined',
+      cell: ({ row }) => (
+        <Checkbox checked={row.original.systemDefined ?? true} disabled />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => (

@@ -45,15 +45,15 @@ export const sidebarData: SidebarData = {
           icon: BookOpen,
         },
         {
-          title: 'View System Data',
-          url: '/codes',
-          icon: Code2,
-        },
-        {
           title: 'View Timetable',
           url: '/timetables',
           icon: Code2,
         },
+        {
+          title: 'View System Data',
+          url: '/codes',
+          icon: Code2,
+        },        
       ],
     },
   ],
