@@ -12,8 +12,8 @@ export function Timetables() {
   })
 
   const { data: paginationData } = useQuery({
-    queryKey: ['timetables', pagination.pageIndex, pagination.pageSize],
-    queryFn: () => timetablesService.getAll({
+    queryKey: ['timetable-infos', pagination.pageIndex, pagination.pageSize],
+    queryFn: () => timetablesService.getAllInfo({
       page: pagination.pageIndex,
       size: pagination.pageSize,
     }),

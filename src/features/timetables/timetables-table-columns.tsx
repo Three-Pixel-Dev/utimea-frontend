@@ -1,9 +1,9 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Pencil, Eye } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/data-table/column-header'
 import { Button } from '@/components/ui/button'
-import { Timetable } from './timetables-service'
+import { TimetableInfo } from './timetables-service'
 
 function TimetableActions({ id }: { id: number }) {
   const navigate = useNavigate()
@@ -17,18 +17,11 @@ function TimetableActions({ id }: { id: number }) {
       >
         <Eye className='h-4 w-4' />
       </Button>
-      <Button
-        variant='ghost'
-        size='sm'
-        onClick={() => navigate({ to: `/timetables/edit/${id}` as any })}
-      >
-        <Pencil className='h-4 w-4' />
-      </Button>
     </div>
   )
 }
 
-export const timetablesTableColumns: ColumnDef<Timetable>[] = [
+export const timetablesTableColumns: ColumnDef<TimetableInfo>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => (

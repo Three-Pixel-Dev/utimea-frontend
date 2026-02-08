@@ -11,7 +11,7 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { ConfigDrawer } from '@/components/config-drawer'
-import { timetablesService, type Timetable } from '@/features/timetables/timetables-service'
+import { timetablesService, type Timetable, type TimetableInfo } from '@/features/timetables/timetables-service'
 import { codesService } from '@/features/codes/codes-service'
 import { useMemo, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
@@ -32,9 +32,9 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
     } | null>(null)
     const [isFormOpen, setIsFormOpen] = useState(false)
 
-    const { data: timetable, isLoading: isLoadingTimetable } = useQuery({
-      queryKey: ['timetable', id],
-      queryFn: () => timetablesService.getById(Number(id)),
+    const { data: timetableInfo, isLoading: isLoadingTimetableInfo } = useQuery({
+      queryKey: ['timetable-info', id],
+      queryFn: () => timetablesService.getInfoById(Number(id)),
     })
 
     const { data: timetableDays = [] } = useQuery({
@@ -48,19 +48,19 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
     })
 
     const { data: allTimetables, isLoading: isLoadingAll } = useQuery({
-      queryKey: ['timetables', 'all', timetable?.timetableInfo?.majorSection?.id, timetable?.timetableInfo?.academicYear?.id],
+      queryKey: ['timetables', 'all', timetableInfo?.majorSection?.id, timetableInfo?.academicYear?.id],
       queryFn: async () => {
         const response = await timetablesService.getAll({
           page: 0,
           size: 10000,
           filter: {
-            majorSectionId: timetable?.timetableInfo.majorSection.id,
-            academicYearId: timetable?.timetableInfo.academicYear.id,
+            majorSectionId: timetableInfo?.majorSection.id,
+            academicYearId: timetableInfo?.academicYear.id,
           },
         })
         return response.content
       },
-      enabled: !!timetable,
+      enabled: !!timetableInfo,
     })
 
     const timetableGrid = useMemo(() => {
@@ -88,7 +88,7 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
       return grid
     }, [allTimetables, timetableDays, timetablePeriods])
 
-    const isLoading = isLoadingTimetable || isLoadingAll
+    const isLoading = isLoadingTimetableInfo || isLoadingAll
 
     const handleCellClick = (dayId: number, periodId: number) => {
       const entry = timetableGrid?.[dayId]?.[periodId] || null
@@ -139,12 +139,12 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                   <CardTitle>Timetable View</CardTitle>
                 </div>
                 <CardDescription>
-                  {timetable ? (
+                  {timetableInfo ? (
                     <>
                       <Badge variant='secondary' className='mr-2'>
-                        {timetable.timetableInfo.majorSection.name}
+                        {timetableInfo.majorSection.name}
                       </Badge>
-                      <span>{timetable.timetableInfo.academicYear.name}</span>
+                      <span>{timetableInfo.academicYear.name}</span>
                     </>
                   ) : (
                     'Loading timetable information...'
@@ -229,15 +229,15 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
           </div>
         </Main>
 
-        {selectedCell && timetable && (
+        {selectedCell && timetableInfo && (
           <TimetableCellForm
             open={isFormOpen}
             onOpenChange={setIsFormOpen}
             timetable={selectedCell.timetable}
             dayId={selectedCell.dayId}
             periodId={selectedCell.periodId}
-            majorSectionId={timetable.timetableInfo.majorSection.id}
-            academicYearId={timetable.timetableInfo.academicYear.id}
+            majorSectionId={timetableInfo.majorSection.id}
+            academicYearId={timetableInfo.academicYear.id}
             onSuccess={handleFormSuccess}
           />
         )}

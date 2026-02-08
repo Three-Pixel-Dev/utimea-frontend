@@ -28,7 +28,12 @@ import { majorSectionsService } from '@/features/major-sections/major-sections-s
 import { subjectsService } from '@/features/subjects/subjects-service'
 import { roomsService } from '@/features/rooms/rooms-service'
 
-const formSchema = z.object({
+const createFormSchema = z.object({
+  majorSectionId: z.string().min(1, 'Major Section is required'),
+  academicYearId: z.string().min(1, 'Academic Year is required'),
+})
+
+const editFormSchema = z.object({
   majorSectionId: z.string().min(1, 'Major Section is required'),
   academicYearId: z.string().min(1, 'Academic Year is required'),
   timetableDayId: z.string().min(1, 'Timetable Day is required'),
@@ -62,11 +67,13 @@ export function TimetableForm({ timetable, mode }: TimetableFormProps) {
   const { data: timetableDays = [] } = useQuery({
     queryKey: ['timetableDays'],
     queryFn: () => codesService.getCodeValuesByConstantValue('TIMETABLE_DAYS'),
+    enabled: mode === 'edit',
   })
 
   const { data: timetablePeriods = [] } = useQuery({
     queryKey: ['timetablePeriods'],
     queryFn: () => codesService.getCodeValuesByConstantValue('TIMETABLE_PERIODS'),
+    enabled: mode === 'edit',
   })
 
   const { data: subjects = [] } = useQuery({
@@ -75,6 +82,7 @@ export function TimetableForm({ timetable, mode }: TimetableFormProps) {
       const response = await subjectsService.getAll({ page: 0, size: 1000 })
       return response.content
     },
+    enabled: mode === 'edit',
   })
 
   const { data: rooms = [] } = useQuery({
@@ -83,20 +91,28 @@ export function TimetableForm({ timetable, mode }: TimetableFormProps) {
       const response = await roomsService.getAll({ page: 0, size: 1000 })
       return response.content
     },
+    enabled: mode === 'edit',
   })
 
-  type FormData = z.infer<typeof formSchema>
+  type CreateFormData = z.infer<typeof createFormSchema>
+  type EditFormData = z.infer<typeof editFormSchema>
+  type FormData = CreateFormData | EditFormData
 
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      majorSectionId: '',
-      academicYearId: '',
-      timetableDayId: '',
-      timetablePeriodId: '',
-      subjectId: '',
-      roomId: '',
-    },
+    resolver: zodResolver(mode === 'create' ? createFormSchema : editFormSchema),
+    defaultValues: mode === 'create' 
+      ? {
+          majorSectionId: '',
+          academicYearId: '',
+        }
+      : {
+          majorSectionId: '',
+          academicYearId: '',
+          timetableDayId: '',
+          timetablePeriodId: '',
+          subjectId: '',
+          roomId: '',
+        },
   })
 
   useEffect(() => {
@@ -128,24 +144,31 @@ export function TimetableForm({ timetable, mode }: TimetableFormProps) {
     setIsLoading(true)
 
     try {
-      const requestData = {
-        majorSectionId: Number(data.majorSectionId),
-        academicYearId: Number(data.academicYearId),
-        timetableDayId: Number(data.timetableDayId),
-        timetablePeriodId: Number(data.timetablePeriodId),
-        subjectId: Number(data.subjectId),
-        roomId: Number(data.roomId),
-      }
-
       if (mode === 'create') {
-        await timetablesService.create(requestData)
+        const createData = data as CreateFormData
+        const requestData = {
+          majorSectionId: Number(createData.majorSectionId),
+          academicYearId: Number(createData.academicYearId),
+        }
+        const created = await timetablesService.createInfo(requestData)
         toast.success('Timetable created successfully!')
+        setIsLoading(false)
+        navigate({ to: `/timetables/view/${created.id}` as any })
       } else if (timetable) {
+        const editData = data as EditFormData
+        const requestData = {
+          majorSectionId: Number(editData.majorSectionId),
+          academicYearId: Number(editData.academicYearId),
+          timetableDayId: Number(editData.timetableDayId),
+          timetablePeriodId: Number(editData.timetablePeriodId),
+          subjectId: Number(editData.subjectId),
+          roomId: Number(editData.roomId),
+        }
         await timetablesService.update(timetable.id, requestData)
         toast.success('Timetable updated successfully!')
+        setIsLoading(false)
+        navigate({ to: '/timetables' as any })
       }
-      setIsLoading(false)
-      navigate({ to: '/timetables' as any })
     } catch (error) {
       setIsLoading(false)
       toast.error('An error occurred')
@@ -219,10 +242,12 @@ export function TimetableForm({ timetable, mode }: TimetableFormProps) {
           }}
         />
 
-        <FormField
-          control={form.control}
-          name='timetableDayId'
-          render={({ field }) => {
+        {mode === 'edit' && (
+          <>
+            <FormField
+              control={form.control}
+              name='timetableDayId'
+              render={({ field }) => {
             const currentValue = field.value || ''
             return (
               <FormItem>
@@ -346,6 +371,8 @@ export function TimetableForm({ timetable, mode }: TimetableFormProps) {
             )
           }}
         />
+          </>
+        )}
 
         <div className='flex justify-end gap-2'>
           <Button
