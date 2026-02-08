@@ -40,13 +40,11 @@ export function MajorSectionForm({ majorSection, mode }: MajorSectionFormProps) 
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
-  // Fetch Major Section Year code values (codeId: 5)
-  const { data: majorSectionYearPagination } = useQuery({
-    queryKey: ['codeValues', 5],
-    queryFn: () => codesService.getCodeValues(5),
+  // Fetch Major Section Year code values
+  const { data: majorSectionYearValues = [] } = useQuery({
+    queryKey: ['codeValues', 'MAJOR_SECTION_YEAR'],
+    queryFn: () => codesService.getCodeValuesByConstantValue('MAJOR_SECTION_YEAR'),
   })
-
-  const majorSectionYearValues = majorSectionYearPagination?.content || []
 
   type FormData = z.infer<typeof formSchema>
 
@@ -139,13 +137,11 @@ export function MajorSectionForm({ majorSection, mode }: MajorSectionFormProps) 
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {majorSectionYearValues
-                      .filter((value) => value.active !== false)
-                      .map((value) => (
-                        <SelectItem key={value.id} value={value.id.toString()}>
-                          {value.name}
-                        </SelectItem>
-                      ))}
+                    {majorSectionYearValues.map((value) => (
+                      <SelectItem key={value.id} value={value.id.toString()}>
+                        {value.codeValue}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />

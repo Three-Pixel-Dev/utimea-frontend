@@ -4,6 +4,14 @@ export type Subject = {
   id: number
   code: string
   description: string | null
+  subjectTypes: {
+    id: number
+    name: string
+  }[] | null
+  roomType: {
+    id: number
+    name: string
+  } | null
   masterData: {
     id: number
     createdBy: number | null
@@ -16,6 +24,8 @@ export type Subject = {
 export type SubjectRequest = {
   code: string
   description: string | null
+  subjectTypeIds: number[] | null
+  roomTypeId: number | null
 }
 
 export type SubjectFilter = {

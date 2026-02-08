@@ -115,7 +115,7 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
           size='sm'
           onClick={handleGoBack}
           className='-ml-2'
-        >
+    >
           <ArrowLeft className='mr-2 h-4 w-4' />
           Back to System Data
         </Button>

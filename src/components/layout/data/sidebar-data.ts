@@ -5,6 +5,8 @@ import {
   Users,
   Code2,
   BookOpen,
+  FileText,
+  Calendar,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -45,9 +47,14 @@ export const sidebarData: SidebarData = {
           icon: BookOpen,
         },
         {
+          title: 'View Subjects',
+          url: '/subjects',
+          icon: FileText,
+        },
+        {
           title: 'View Timetable',
           url: '/timetables',
-          icon: Code2,
+          icon: Calendar,
         },
         {
           title: 'View System Data',
