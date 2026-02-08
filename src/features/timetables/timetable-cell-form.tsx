@@ -104,34 +104,45 @@ export function TimetableCellForm({
     defaultValues: {
       majorSectionId: String(majorSectionId),
       academicYearId: String(academicYearId),
-      timetableDayId: String(dayId),
-      timetablePeriodId: String(periodId),
+      timetableDayId: '',
+      timetablePeriodId: '',
       subjectId: '',
       roomId: '',
     },
   })
 
   useEffect(() => {
-    if (timetable && open) {
+    if (timetable && open && timetableDays.length > 0 && timetablePeriods.length > 0) {
+      // Match by name to find the correct code value IDs
+      const dayName = timetable.timetableData.timetableDay.name.toLowerCase().trim()
+      const periodName = timetable.timetableData.timetablePeriod.name.toLowerCase().trim()
+      
+      const matchedDay = timetableDays.find(d => d.codeValue.toLowerCase().trim() === dayName)
+      const matchedPeriod = timetablePeriods.find(p => p.codeValue.toLowerCase().trim() === periodName)
+      
       form.reset({
         majorSectionId: String(timetable.timetableInfo.majorSection.id),
         academicYearId: String(timetable.timetableInfo.academicYear.id),
-        timetableDayId: String(timetable.timetableData.timetableDay.id),
-        timetablePeriodId: String(timetable.timetableData.timetablePeriod.id),
+        timetableDayId: matchedDay ? String(matchedDay.id) : String(timetable.timetableData.timetableDay.id),
+        timetablePeriodId: matchedPeriod ? String(matchedPeriod.id) : String(timetable.timetableData.timetablePeriod.id),
         subjectId: String(timetable.timetableData.subject.id),
         roomId: String(timetable.timetableData.room.id),
       })
-    } else if (open) {
+    } else if (open && timetableDays.length > 0 && timetablePeriods.length > 0) {
+      // Try to match by ID first, then fall back to first item
+      const matchedDay = timetableDays.find(d => d.id === dayId) || timetableDays.find((_, idx) => idx === 0)
+      const matchedPeriod = timetablePeriods.find(p => p.id === periodId) || timetablePeriods.find((_, idx) => idx === 0)
+      
       form.reset({
         majorSectionId: String(majorSectionId),
         academicYearId: String(academicYearId),
-        timetableDayId: String(dayId),
-        timetablePeriodId: String(periodId),
+        timetableDayId: matchedDay ? String(matchedDay.id) : '',
+        timetablePeriodId: matchedPeriod ? String(matchedPeriod.id) : '',
         subjectId: '',
         roomId: '',
       })
     }
-  }, [timetable, open, dayId, periodId, majorSectionId, academicYearId, form])
+  }, [timetable, open, dayId, periodId, majorSectionId, academicYearId, form, timetableDays, timetablePeriods])
 
   async function onSubmit(data: FormData) {
     setIsLoading(true)

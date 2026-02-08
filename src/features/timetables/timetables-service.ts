@@ -20,6 +20,10 @@ export type TimetableInfo = {
   }
 }
 
+export type TimetableInfoWithTimetables = TimetableInfo & {
+  timetables: Timetable[]
+}
+
 export type Timetable = {
   id: number
   name: string
@@ -104,9 +108,9 @@ export const timetablesService = {
     return response.data.data
   },
 
-  getInfoById: async (id: number): Promise<TimetableInfo> => {
-    const response = await apiClient.get<ApiResponse<TimetableInfo>>(`/api/timetables/info/${id}`)
-    return response.data.data as TimetableInfo
+  getInfoById: async (id: number): Promise<TimetableInfoWithTimetables> => {
+    const response = await apiClient.get<ApiResponse<TimetableInfoWithTimetables>>(`/api/timetables/info/${id}`)
+    return response.data.data as TimetableInfoWithTimetables
   },
 
   createInfo: async (timetableInfo: { majorSectionId: number; academicYearId: number }): Promise<TimetableInfo> => {

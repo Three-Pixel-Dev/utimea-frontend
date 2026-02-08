@@ -11,7 +11,7 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { ConfigDrawer } from '@/components/config-drawer'
-import { timetablesService, type Timetable, type TimetableInfo } from '@/features/timetables/timetables-service'
+import { timetablesService, type Timetable, type TimetableInfoWithTimetables } from '@/features/timetables/timetables-service'
 import { codesService } from '@/features/codes/codes-service'
 import { useMemo, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
@@ -32,66 +32,69 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
     } | null>(null)
     const [isFormOpen, setIsFormOpen] = useState(false)
 
-    const { data: timetableInfo, isLoading: isLoadingTimetableInfo } = useQuery({
-      queryKey: ['timetable-info', id],
+    const { data: timetableInfoWithTimetables, isLoading: isLoadingData } = useQuery({
+      queryKey: ['timetable-info-with-timetables', id],
       queryFn: () => timetablesService.getInfoById(Number(id)),
     })
 
-    const { data: timetableDays = [] } = useQuery({
+    const { data: timetableDays = [], isLoading: isLoadingDays } = useQuery({
       queryKey: ['timetableDays'],
       queryFn: () => codesService.getCodeValuesByConstantValue('TIMETABLE_DAYS'),
     })
 
-    const { data: timetablePeriods = [] } = useQuery({
+    const { data: timetablePeriods = [], isLoading: isLoadingPeriods } = useQuery({
       queryKey: ['timetablePeriods'],
       queryFn: () => codesService.getCodeValuesByConstantValue('TIMETABLE_PERIODS'),
     })
 
-    const { data: allTimetables, isLoading: isLoadingAll } = useQuery({
-      queryKey: ['timetables', 'all', timetableInfo?.majorSection?.id, timetableInfo?.academicYear?.id],
-      queryFn: async () => {
-        const response = await timetablesService.getAll({
-          page: 0,
-          size: 10000,
-          filter: {
-            majorSectionId: timetableInfo?.majorSection.id,
-            academicYearId: timetableInfo?.academicYear.id,
-          },
-        })
-        return response.content
-      },
-      enabled: !!timetableInfo,
-    })
+    const allTimetables = timetableInfoWithTimetables?.timetables || []
+    const timetableInfo = timetableInfoWithTimetables
 
     const timetableGrid = useMemo(() => {
-      if (!allTimetables || !timetableDays.length || !timetablePeriods.length) {
+      if (!timetableDays.length || !timetablePeriods.length) {
         return null
       }
 
+      // Create maps to match timetable data by name to code value IDs
+      const dayMapByName = new Map(timetableDays.map(day => [day.codeValue.toLowerCase().trim(), day.id]))
+      const periodMapByName = new Map(timetablePeriods.map(period => [period.codeValue.toLowerCase().trim(), period.id]))
+
       const grid: Record<string, Record<string, (typeof allTimetables)[0] | null>> = {}
 
+      // Initialize grid with all day/period combinations
       timetableDays.forEach((day) => {
-        grid[day.id] = {}
+        grid[String(day.id)] = {}
         timetablePeriods.forEach((period) => {
-          grid[day.id][period.id] = null
+          grid[String(day.id)][String(period.id)] = null
         })
       })
 
-      allTimetables.forEach((tt) => {
-        const dayId = tt.timetableData.timetableDay.id
-        const periodId = tt.timetableData.timetablePeriod.id
-        if (grid[dayId] && grid[dayId][periodId] === null) {
-          grid[dayId][periodId] = tt
-        }
-      })
+      // Populate grid with timetable entries
+      if (allTimetables.length > 0) {
+        allTimetables.forEach((tt) => {
+          // Match by name first (more reliable than ID)
+          const dayName = tt.timetableData.timetableDay.name.toLowerCase().trim()
+          const periodName = tt.timetableData.timetablePeriod.name.toLowerCase().trim()
+          
+          const codeDayId = dayMapByName.get(dayName) ?? tt.timetableData.timetableDay.id
+          const codePeriodId = periodMapByName.get(periodName) ?? tt.timetableData.timetablePeriod.id
+          
+          const dayIdStr = String(codeDayId)
+          const periodIdStr = String(codePeriodId)
+          
+          if (grid[dayIdStr] && grid[dayIdStr][periodIdStr] === null) {
+            grid[dayIdStr][periodIdStr] = tt
+          }
+        })
+      }
 
       return grid
     }, [allTimetables, timetableDays, timetablePeriods])
 
-    const isLoading = isLoadingTimetableInfo || isLoadingAll
+    const isLoading = isLoadingData || isLoadingDays || isLoadingPeriods
 
     const handleCellClick = (dayId: number, periodId: number) => {
-      const entry = timetableGrid?.[dayId]?.[periodId] || null
+      const entry = timetableGrid?.[String(dayId)]?.[String(periodId)] || null
       setSelectedCell({
         timetable: entry,
         dayId,
@@ -152,11 +155,11 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
+                {isLoading && !timetableGrid && (!timetableDays.length || !timetablePeriods.length) ? (
                   <div className='flex items-center justify-center py-12'>
                     <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
                   </div>
-                ) : timetableGrid ? (
+                ) : (timetableDays.length > 0 && timetablePeriods.length > 0) ? (
                   <div className='overflow-x-auto rounded-lg border'>
                     <table className='w-full border-collapse'>
                       <thead>
@@ -184,11 +187,11 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                               {day.codeValue}
                             </td>
                             {timetablePeriods.map((period) => {
-                              const entry = timetableGrid[day.id]?.[period.id]
+                              const entry = timetableGrid?.[String(day.id)]?.[String(period.id)]
                               return (
                                 <td
                                   key={period.id}
-                                  onClick={() => handleCellClick(day.id, period.id)}
+                                  onClick={() => handleCellClick(Number(day.id), Number(period.id))}
                                   className={cn(
                                     'border-r p-3 text-center text-sm last:border-r-0 cursor-pointer transition-colors',
                                     entry
@@ -196,7 +199,11 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                                       : 'hover:bg-muted/50'
                                   )}
                                 >
-                                  {entry ? (
+                                  {isLoading && !entry ? (
+                                    <div className='flex items-center justify-center'>
+                                      <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
+                                    </div>
+                                  ) : entry ? (
                                     <div className='space-y-1.5'>
                                       <div className='font-semibold text-primary'>
                                         {entry.timetableData.subject.code}
@@ -221,7 +228,7 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                   </div>
                 ) : (
                   <div className='py-12 text-center text-muted-foreground'>
-                    No timetable data available
+                    {isLoading ? 'Loading timetable data...' : 'No timetable data available'}
                   </div>
                 )}
               </CardContent>
