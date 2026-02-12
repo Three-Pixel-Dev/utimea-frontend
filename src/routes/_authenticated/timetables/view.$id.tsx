@@ -81,7 +81,7 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
           
           const dayIdStr = String(codeDayId)
           const periodIdStr = String(codePeriodId)
-          
+          // tt.timetableData.subjectType
           if (grid[dayIdStr] && grid[dayIdStr][periodIdStr] === null) {
             grid[dayIdStr][periodIdStr] = tt
           }
@@ -116,18 +116,28 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
 
       allTimetables.forEach((tt) => {
         const subjectCode = tt.timetableData.subject.code
+        
         if (!subjectMap.has(subjectCode)) {
-          // Get lecturers from subject teachers
-          const teachers = tt.timetableData.subject.teachers || []
-          const lecturerNames = teachers
-            .map((t) => t.name)
-            .filter((name: string) => name)
+          const teacher = tt.timetableData.teacher
+          console.log(teacher)
+          const lecturerNames: string[] = []
+
+          if (teacher?.name) {
+            lecturerNames.push(teacher.name)
+          }
 
           subjectMap.set(subjectCode, {
             code: subjectCode,
             description: tt.timetableData.subject.description,
             lecturers: lecturerNames,
           })
+        } else {
+          const existing = subjectMap.get(subjectCode)!
+          const teacherName = tt.timetableData.teacher?.name
+
+          if (teacherName && !existing.lecturers.includes(teacherName)) {
+            existing.lecturers.push(teacherName)
+          }
         }
       })
 
@@ -241,7 +251,7 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                                           {entry.timetableData.subject.code}
                                         </div>
                                         <div className='text-xs text-muted-foreground'>
-                                          {entry.timetableData.room.name}
+                                          {entry.timetableData.room.name} • {entry.timetableData.subjectType}
                                         </div>
                                       </div>
                                     ) : (
