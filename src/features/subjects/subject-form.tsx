@@ -34,12 +34,14 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { Subject, subjectsService } from './subjects-service'
 import { codesService } from '@/features/codes/codes-service'
+import { teachersService } from '@/features/teachers/teachers-service'
 
 const formSchema = z.object({
   code: z.string().min(1, 'Code is required'),
   description: z.string().optional(),
   subjectTypeIds: z.array(z.string()).optional(),
   roomTypeId: z.string().optional(),
+  teacherIds: z.array(z.string()).optional(),
 })
 
 type SubjectFormProps = {
@@ -61,6 +63,12 @@ export function SubjectForm({ subject, mode }: SubjectFormProps) {
     queryFn: () => codesService.getCodeValuesByConstantValue('ROOM_TYPE'),
   })
 
+  const { data: teachersData } = useQuery({
+    queryKey: ['teachers', 'all'],
+    queryFn: () => teachersService.getAll({ page: 0, size: 1000 }),
+  })
+  const teachers = teachersData?.content || []
+
   type FormData = z.infer<typeof formSchema>
 
   const form = useForm<FormData>({
@@ -70,6 +78,7 @@ export function SubjectForm({ subject, mode }: SubjectFormProps) {
       description: '',
       subjectTypeIds: [],
       roomTypeId: '',
+      teacherIds: [],
     },
   })
 
@@ -80,6 +89,7 @@ export function SubjectForm({ subject, mode }: SubjectFormProps) {
         description: subject.description || '',
         subjectTypeIds: subject.subjectTypes?.map((st) => String(st.id)) || [],
         roomTypeId: subject.roomType?.id ? String(subject.roomType.id) : '',
+        teacherIds: subject.teachers?.map((t) => String(t.id)) || [],
       })
     }
   }, [subject, form])
@@ -95,6 +105,9 @@ export function SubjectForm({ subject, mode }: SubjectFormProps) {
           ? data.subjectTypeIds.map((id) => Number(id))
           : null,
         roomTypeId: data.roomTypeId ? Number(data.roomTypeId) : null,
+        teacherIds: data.teacherIds && data.teacherIds.length > 0
+          ? data.teacherIds.map((id) => Number(id))
+          : null,
       }
 
       if (mode === 'create') {
@@ -259,6 +272,97 @@ export function SubjectForm({ subject, mode }: SubjectFormProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )
+          }}
+        />
+
+        <FormField
+          control={form.control}
+          name='teacherIds'
+          render={({ field }) => {
+            const selectedIds = field.value || []
+            return (
+              <FormItem>
+                <FormLabel>Teachers</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant='outline'
+                        role='combobox'
+                        className={cn(
+                          'w-full justify-between h-12 text-base',
+                          !selectedIds.length && 'text-muted-foreground'
+                        )}
+                      >
+                        {selectedIds.length > 0
+                          ? `${selectedIds.length} selected`
+                          : 'Select teachers'}
+                        <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className='w-[400px] p-0' align='start'>
+                    <div className='max-h-[300px] overflow-y-auto p-2'>
+                      {teachers.map((teacher) => {
+                        const isSelected = selectedIds.includes(String(teacher.id))
+                        return (
+                          <div
+                            key={teacher.id}
+                            className='flex items-center space-x-2 p-2 hover:bg-accent rounded-md cursor-pointer'
+                            onClick={() => {
+                              const newValue = isSelected
+                                ? selectedIds.filter((id) => id !== String(teacher.id))
+                                : [...selectedIds, String(teacher.id)]
+                              field.onChange(newValue)
+                            }}
+                          >
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={() => {
+                                const newValue = isSelected
+                                  ? selectedIds.filter((id) => id !== String(teacher.id))
+                                  : [...selectedIds, String(teacher.id)]
+                                field.onChange(newValue)
+                              }}
+                            />
+                            <label className='flex-1 cursor-pointer'>
+                              {teacher.name}
+                              {teacher.degree && (
+                                <span className='text-muted-foreground text-sm ml-2'>
+                                  ({teacher.degree})
+                                </span>
+                              )}
+                            </label>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                {selectedIds.length > 0 && (
+                  <div className='flex flex-wrap gap-2 mt-2'>
+                    {selectedIds.map((id) => {
+                      const teacher = teachers.find((t) => String(t.id) === id)
+                      return teacher ? (
+                        <Badge key={id} variant='secondary' className='text-sm'>
+                          {teacher.name}
+                          <button
+                            type='button'
+                            className='ml-2 hover:text-destructive'
+                            onClick={() => {
+                              field.onChange(selectedIds.filter((i) => i !== id))
+                            }}
+                          >
+                            ×
+                          </button>
+                        </Badge>
+                      ) : null
+                    })}
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )

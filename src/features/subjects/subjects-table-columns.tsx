@@ -1,30 +1,37 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Pencil, Eye } from 'lucide-react'
+import { Pencil, Eye, MoreVertical } from 'lucide-react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/data-table/column-header'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Subject } from './subjects-service'
 
 function SubjectActions({ id }: { id: number }) {
   const navigate = useNavigate()
 
   return (
-    <div className='flex gap-2'>
-      <Button
-        variant='ghost'
-        size='sm'
-        onClick={() => navigate({ to: `/subjects/view/${id}` as any })}
-      >
-        <Eye className='h-4 w-4' />
-      </Button>
-      <Button
-        variant='ghost'
-        size='sm'
-        onClick={() => navigate({ to: `/subjects/edit/${id}` as any })}
-      >
-        <Pencil className='h-4 w-4' />
-      </Button>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
+          <MoreVertical className='h-4 w-4' />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align='end'>
+        <DropdownMenuItem onClick={() => navigate({ to: `/subjects/view/${id}` as any })}>
+          <Eye className='mr-2 h-4 w-4' />
+          View
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate({ to: `/subjects/edit/${id}` as any })}>
+          <Pencil className='mr-2 h-4 w-4' />
+          Edit
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -57,8 +64,12 @@ export const subjectsTableColumns: ColumnDef<Subject>[] = [
   },
   {
     id: 'actions',
-    header: 'Actions',
-    cell: ({ row }) => <SubjectActions id={row.original.id} />,
+    header: () => <div className='text-right'>Actions</div>,
+    cell: ({ row }) => (
+      <div className='text-right'>
+        <SubjectActions id={row.original.id} />
+      </div>
+    ),
     enableHiding: false,
     enableSorting: false,
   },

@@ -12,6 +12,23 @@ export type Subject = {
     id: number
     name: string
   } | null
+  teachers: {
+    id: number
+    name: string
+    phoneNumber: string | null
+    degree: string | null
+    department: {
+      id: number
+      name: string
+    } | null
+    masterData: {
+      id: number
+      createdBy: number | null
+      updatedBy: number | null
+      createdAt: string
+      updatedAt: string
+    }
+  }[] | null
   masterData: {
     id: number
     createdBy: number | null
@@ -26,6 +43,7 @@ export type SubjectRequest = {
   description: string | null
   subjectTypeIds: number[] | null
   roomTypeId: number | null
+  teacherIds: number[] | null
 }
 
 export type SubjectFilter = {

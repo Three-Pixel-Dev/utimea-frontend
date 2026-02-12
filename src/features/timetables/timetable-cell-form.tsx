@@ -310,41 +310,74 @@ export function TimetableCellForm({
                   <FormField
                     control={form.control}
                     name='subjectId'
-                    render={({ field }) => (
-                      <FormItem className='space-y-2'>
-                        <FormLabel className='flex items-center gap-2 text-sm font-medium'>
-                          <BookOpen className='h-4 w-4' />
-                          Subject
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className='h-12 text-base justify-start'>
-                              <SelectValue placeholder='Select subject' />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {subjects.map((subject) => (
-                              <SelectItem key={subject.id} value={String(subject.id)} className='text-left'>
-                                <div className='flex flex-col items-start py-1'>
-                                  <span className='font-medium leading-tight text-left'>{subject.code}</span>
-                                  {subject.description && (
-                                    <span className='text-xs text-muted-foreground leading-tight mt-0.5 text-left'>
-                                      {subject.description}
-                                    </span>
-                                  )}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const selectedSubject = subjects.find(s => String(s.id) === field.value)
+                      return (
+                        <FormItem className='space-y-2'>
+                          <FormLabel className='flex items-center gap-2 text-sm font-medium'>
+                            <BookOpen className='h-4 w-4' />
+                            Subject
+                          </FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className='h-12 text-base justify-start'>
+                                <SelectValue placeholder='Select subject' />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {subjects.map((subject) => (
+                                <SelectItem key={subject.id} value={String(subject.id)} className='text-left'>
+                                  <div className='flex flex-col items-start py-1'>
+                                    <span className='font-medium leading-tight text-left'>{subject.code}</span>
+                                    {subject.description && (
+                                      <span className='text-xs text-muted-foreground leading-tight mt-0.5 text-left'>
+                                        {subject.description}
+                                      </span>
+                                    )}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )
+                    }}
                   />
 
+                  <FormField
+                    control={form.control}
+                    name='subjectId'
+                    render={({ field }) => {
+                      const selectedSubject = subjects.find(s => String(s.id) === field.value)
+                      return (
+                        <FormItem className='space-y-2'>
+                          <FormLabel className='flex items-center gap-2 text-sm font-medium'>
+                            Subject Type
+                          </FormLabel>
+                          <div className='h-12 flex items-center'>
+                            {selectedSubject?.subjectTypes && selectedSubject.subjectTypes.length > 0 ? (
+                              <div className='flex flex-wrap gap-1.5'>
+                                {selectedSubject.subjectTypes.map((type) => (
+                                  <Badge key={type.id} variant='secondary' className='text-xs'>
+                                    {type.name}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className='text-sm text-muted-foreground'>No subject types</span>
+                            )}
+                          </div>
+                        </FormItem>
+                      )
+                    }}
+                  />
+                </div>
+
+                <div className='grid grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
                     name='roomId'
@@ -382,6 +415,24 @@ export function TimetableCellForm({
                       </FormItem>
                     )}
                   />
+
+                  <div className='space-y-2'>
+                    <FormLabel className='flex items-center gap-2 text-sm font-medium'>
+                      Room Type
+                    </FormLabel>
+                    <div className='h-12 flex items-center'>
+                      {(() => {
+                        const selectedSubject = subjects.find(s => s.id === Number(form.watch('subjectId')))
+                        return selectedSubject?.roomType ? (
+                          <Badge variant='outline' className='text-sm'>
+                            {selectedSubject.roomType.name}
+                          </Badge>
+                        ) : (
+                          <span className='text-sm text-muted-foreground'>No room type assigned</span>
+                        )
+                      })()}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

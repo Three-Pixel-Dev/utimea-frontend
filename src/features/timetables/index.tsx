@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import type { PaginationState } from '@tanstack/react-table'
+import { useNavigate } from '@tanstack/react-router'
+import { Users } from 'lucide-react'
 import { AdminTableLayout } from '@/components/layout/admin-table-layout'
+import { Button } from '@/components/ui/button'
 import { timetablesService } from './timetables-service'
 import { timetablesTableColumns } from './timetables-table-columns'
 
@@ -10,6 +13,7 @@ export function Timetables() {
     pageIndex: 0,
     pageSize: 10,
   })
+  const navigate = useNavigate()
 
   const { data: paginationData } = useQuery({
     queryKey: ['timetable-infos', pagination.pageIndex, pagination.pageSize],
@@ -36,6 +40,16 @@ export function Timetables() {
       totalItems={paginationData?.totalItems}
       pagination={pagination}
       onPaginationChange={setPagination}
+      headerActions={
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => navigate({ to: '/timetables/combine' as any })}
+        >
+          <Users className='mr-2 h-4 w-4' />
+          Combine Class
+        </Button>
+      }
     />
   )
 }

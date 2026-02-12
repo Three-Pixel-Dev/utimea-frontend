@@ -35,6 +35,17 @@ export type StudentFilter = {
   majorSectionId?: number
 }
 
+export type ExcelImportResult = {
+  successCount: number
+  failureCount: number
+  errors: Array<{
+    rowNumber: number
+    column: string
+    message: string
+    invalidValue?: string
+  }>
+}
+
 export const studentsService = {
   getAll: async (pageAndFilter?: PageAndFilter<StudentFilter>): Promise<PaginationResponse<Student>> => {
     const requestBody: PageAndFilter<StudentFilter> = {
@@ -70,10 +81,8 @@ export const studentsService = {
     await apiClient.delete(`/api/students/${id}`)
   },
 
-  // Excel operations (to be implemented with backend)
+  // Excel operations
   downloadTemplate: async (): Promise<void> => {
-    // TODO: Implement when backend is ready
-    // This should download an Excel template file
     const response = await apiClient.get('/api/students/excel/template', {
       responseType: 'blob',
     })
@@ -89,8 +98,6 @@ export const studentsService = {
   },
 
   exportToExcel: async (): Promise<void> => {
-    // TODO: Implement when backend is ready
-    // This should export all students to Excel
     const response = await apiClient.get('/api/students/excel/export', {
       responseType: 'blob',
     })
@@ -105,15 +112,56 @@ export const studentsService = {
     window.URL.revokeObjectURL(url)
   },
 
-  importFromExcel: async (file: File): Promise<void> => {
-    // TODO: Implement when backend is ready
-    // This should upload and import students from Excel file
+  importFromExcel: async (file: File): Promise<ExcelImportResult> => {
     const formData = new FormData()
     formData.append('file', file)
-    await apiClient.post('/api/students/excel/import', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
+    try {
+      const response = await apiClient.post<ApiResponse<ExcelImportResult>>('/api/students/excel/import', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      
+      // Log for debugging (remove in production if needed)
+      if (import.meta.env.DEV) {
+        console.log('Import response:', response)
+      }
+      
+      // Check if response and data exist
+      if (response?.data?.data) {
+        return response.data.data
+      }
+      
+      // If response.data exists but doesn't have nested data, check if it's the result directly
+      if (response?.data) {
+        const responseData = response.data as any
+        // Check if it has the ExcelImportResult structure
+        if (responseData.successCount !== undefined || responseData.failureCount !== undefined) {
+          return responseData as ExcelImportResult
+        }
+        // Try nested data
+        if (responseData.data) {
+          return responseData.data as ExcelImportResult
+        }
+      }
+      
+      throw new Error('Invalid response structure: ' + JSON.stringify(response?.data))
+    } catch (error: any) {
+      // Log for debugging
+      if (import.meta.env.DEV) {
+        console.error('Import error:', error)
+      }
+      
+      // Handle axios errors
+      if (error.response?.data) {
+        const errorData = error.response.data
+        if (errorData.data && (errorData.data.successCount !== undefined || errorData.data.failureCount !== undefined)) {
+          return errorData.data as ExcelImportResult
+        }
+        throw new Error(errorData.message || 'Failed to import students')
+      }
+      
+      throw error
+    }
   },
 }

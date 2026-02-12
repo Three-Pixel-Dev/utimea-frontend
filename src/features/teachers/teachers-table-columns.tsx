@@ -1,23 +1,37 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Pencil } from 'lucide-react'
+import { Pencil, Eye, MoreVertical } from 'lucide-react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/data-table/column-header'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Teacher } from './teachers-service'
 
 function TeacherActions({ id }: { id: number }) {
   const navigate = useNavigate()
 
   return (
-    <Button
-      variant='ghost'
-      size='sm'
-      onClick={() =>
-        navigate({ to: `/teachers/edit/${id}` as any })
-      }
-    >
-      <Pencil className='h-4 w-4' />
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
+          <MoreVertical className='h-4 w-4' />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align='end'>
+        <DropdownMenuItem onClick={() => navigate({ to: `/teachers/timetable/${id}` as any })}>
+          <Eye className='mr-2 h-4 w-4' />
+          View Timetable
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate({ to: `/teachers/edit/${id}` as any })}>
+          <Pencil className='mr-2 h-4 w-4' />
+          Edit
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -70,7 +84,13 @@ export const teachersTableColumns: ColumnDef<Teacher>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => <TeacherActions id={row.original.id} />,
+    header: () => <div className='text-right'>Actions</div>,
+    cell: ({ row }) => (
+      <div className='text-right'>
+        <TeacherActions id={row.original.id} />
+      </div>
+    ),
     enableHiding: false,
+    enableSorting: false,
   },
 ]

@@ -46,10 +46,94 @@ export function Students() {
   }
 
   const handleImportExcel = async (file: File) => {
-    await studentsService.importFromExcel(file)
-    // Invalidate queries to refresh the list
-    queryClient.invalidateQueries({ queryKey: ['students'] })
-    toast.success('Students imported successfully!')
+    try {
+      const result = await studentsService.importFromExcel(file)
+      
+      // Invalidate queries to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+      
+      // Check if result is valid - be more lenient
+      if (!result || typeof result !== 'object') {
+        toast.error('Failed to import students: Invalid response from server')
+        if (import.meta.env.DEV) {
+          console.error('Invalid result:', result)
+        }
+        return
+      }
+      
+      // Ensure result has expected structure (at least one of these should exist)
+      const hasValidStructure = 
+        result.successCount !== undefined || 
+        result.failureCount !== undefined || 
+        result.totalCount !== undefined ||
+        result.errors !== undefined
+      
+      if (!hasValidStructure) {
+        toast.error('Failed to import students: Unexpected response format')
+        if (import.meta.env.DEV) {
+          console.error('Unexpected result format:', result)
+        }
+        return
+      }
+      
+      // Use default values if properties are missing
+      const successCount = result.successCount ?? 0
+      const failureCount = result.failureCount ?? 0
+      
+      // Show individual toast for each error
+      if (result.errors && result.errors.length > 0) {
+        result.errors.forEach((error, index) => {
+          setTimeout(() => {
+            toast.error(
+              `Row ${error.rowNumber}${error.column ? ` (${error.column})` : ''}: ${error.message}`,
+              {
+                duration: 5000,
+              }
+            )
+          }, index * 300) // Stagger toasts by 300ms
+        })
+      }
+      
+      // Show success/warning summary
+      if (successCount > 0 && failureCount === 0) {
+        // All succeeded
+        setTimeout(() => {
+          toast.success(`Successfully imported ${successCount} student(s)!`, {
+            duration: 3000,
+          })
+        }, (result.errors?.length || 0) * 300)
+      } else if (successCount > 0 && failureCount > 0) {
+        // Partial success
+        setTimeout(() => {
+          toast.warning(
+            `Partially imported: ${successCount} succeeded, ${failureCount} failed.`,
+            {
+              duration: 4000,
+            }
+          )
+        }, (result.errors?.length || 0) * 300)
+      } else if (failureCount > 0 && successCount === 0) {
+        // All failed - summary toast
+        setTimeout(() => {
+          toast.error(
+            `Import failed: All ${failureCount} row(s) had errors.`,
+            {
+              duration: 4000,
+            }
+          )
+        }, (result.errors?.length || 0) * 300)
+      } else if (successCount === 0 && failureCount === 0 && result.totalCount > 0) {
+        // Edge case: totalCount exists but no success/failure counts - assume success
+        setTimeout(() => {
+          toast.success(`Successfully imported ${result.totalCount} student(s)!`, {
+            duration: 3000,
+          })
+        }, (result.errors?.length || 0) * 300)
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to import students'
+      toast.error(errorMessage)
+    }
   }
 
   return (

@@ -53,6 +53,12 @@ export type Timetable = {
       id: number
       code: string
       description: string | null
+      teachers: {
+        id: number
+        name: string
+        phoneNumber: string | null
+        degree: string | null
+      }[] | null
     }
     room: {
       id: number
@@ -85,6 +91,7 @@ export type TimetableFilter = {
   timetablePeriodId?: number
   subjectId?: number
   roomId?: number
+  teacherId?: number
 }
 
 export type TimetableInfoFilter = {
@@ -150,5 +157,10 @@ export const timetablesService = {
 
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/api/timetables/${id}`)
+  },
+
+  getByTeacherId: async (teacherId: number): Promise<Timetable[]> => {
+    const response = await apiClient.get<ApiResponse<Timetable[]>>(`/api/timetables/teacher/${teacherId}`)
+    return response.data.data as Timetable[]
   },
 }

@@ -1,23 +1,33 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Eye } from 'lucide-react'
+import { Eye, MoreVertical } from 'lucide-react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/data-table/column-header'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { TimetableInfo } from './timetables-service'
 
 function TimetableActions({ id }: { id: number }) {
   const navigate = useNavigate()
 
   return (
-    <div className='flex gap-2'>
-      <Button
-        variant='ghost'
-        size='sm'
-        onClick={() => navigate({ to: `/timetables/view/${id}` as any })}
-      >
-        <Eye className='h-4 w-4' />
-      </Button>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
+          <MoreVertical className='h-4 w-4' />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align='end'>
+        <DropdownMenuItem onClick={() => navigate({ to: `/timetables/view/${id}` as any })}>
+          <Eye className='mr-2 h-4 w-4' />
+          View
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -33,8 +43,12 @@ export const timetablesTableColumns: ColumnDef<TimetableInfo>[] = [
   },
   {
     id: 'actions',
-    header: 'Actions',
-    cell: ({ row }) => <TimetableActions id={row.original.id} />,
+    header: () => <div className='text-right'>Actions</div>,
+    cell: ({ row }) => (
+      <div className='text-right'>
+        <TimetableActions id={row.original.id} />
+      </div>
+    ),
     enableHiding: false,
     enableSorting: false,
   },

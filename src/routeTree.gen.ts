@@ -20,6 +20,7 @@ import { Route as AuthenticatedMajorSectionsRouteImport } from './routes/_authen
 import { Route as AuthenticatedCodesRouteImport } from './routes/_authenticated/codes'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as AuthenticatedTimetablesNewRouteImport } from './routes/_authenticated/timetables/new'
+import { Route as AuthenticatedTimetablesCombineRouteImport } from './routes/_authenticated/timetables/combine'
 import { Route as AuthenticatedTeachersNewRouteImport } from './routes/_authenticated/teachers/new'
 import { Route as AuthenticatedSubjectsNewRouteImport } from './routes/_authenticated/subjects/new'
 import { Route as AuthenticatedStudentsNewRouteImport } from './routes/_authenticated/students/new'
@@ -29,6 +30,7 @@ import { Route as AuthenticatedCodesNewRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCodesIdRouteImport } from './routes/_authenticated/codes/$id'
 import { Route as AuthenticatedTimetablesViewIdRouteImport } from './routes/_authenticated/timetables/view.$id'
 import { Route as AuthenticatedTimetablesEditIdRouteImport } from './routes/_authenticated/timetables/edit.$id'
+import { Route as AuthenticatedTeachersTimetableIdRouteImport } from './routes/_authenticated/teachers/timetable.$id'
 import { Route as AuthenticatedTeachersEditIdRouteImport } from './routes/_authenticated/teachers/edit.$id'
 import { Route as AuthenticatedSubjectsViewIdRouteImport } from './routes/_authenticated/subjects/view.$id'
 import { Route as AuthenticatedSubjectsEditIdRouteImport } from './routes/_authenticated/subjects/edit.$id'
@@ -96,6 +98,12 @@ const AuthenticatedTimetablesNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedTimetablesRoute,
   } as any)
+const AuthenticatedTimetablesCombineRoute =
+  AuthenticatedTimetablesCombineRouteImport.update({
+    id: '/combine',
+    path: '/combine',
+    getParentRoute: () => AuthenticatedTimetablesRoute,
+  } as any)
 const AuthenticatedTeachersNewRoute =
   AuthenticatedTeachersNewRouteImport.update({
     id: '/new',
@@ -146,6 +154,12 @@ const AuthenticatedTimetablesEditIdRoute =
     id: '/edit/$id',
     path: '/edit/$id',
     getParentRoute: () => AuthenticatedTimetablesRoute,
+  } as any)
+const AuthenticatedTeachersTimetableIdRoute =
+  AuthenticatedTeachersTimetableIdRouteImport.update({
+    id: '/timetable/$id',
+    path: '/timetable/$id',
+    getParentRoute: () => AuthenticatedTeachersRoute,
   } as any)
 const AuthenticatedTeachersEditIdRoute =
   AuthenticatedTeachersEditIdRouteImport.update({
@@ -225,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/students/new': typeof AuthenticatedStudentsNewRoute
   '/subjects/new': typeof AuthenticatedSubjectsNewRoute
   '/teachers/new': typeof AuthenticatedTeachersNewRoute
+  '/timetables/combine': typeof AuthenticatedTimetablesCombineRoute
   '/timetables/new': typeof AuthenticatedTimetablesNewRoute
   '/codes/$id/values': typeof AuthenticatedCodesIdValuesRouteWithChildren
   '/codes/edit/$id': typeof AuthenticatedCodesEditIdRoute
@@ -234,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/subjects/edit/$id': typeof AuthenticatedSubjectsEditIdRoute
   '/subjects/view/$id': typeof AuthenticatedSubjectsViewIdRoute
   '/teachers/edit/$id': typeof AuthenticatedTeachersEditIdRoute
+  '/teachers/timetable/$id': typeof AuthenticatedTeachersTimetableIdRoute
   '/timetables/edit/$id': typeof AuthenticatedTimetablesEditIdRoute
   '/timetables/view/$id': typeof AuthenticatedTimetablesViewIdRoute
   '/codes/$id/values/new': typeof AuthenticatedCodesIdValuesNewRoute
@@ -256,6 +272,7 @@ export interface FileRoutesByTo {
   '/students/new': typeof AuthenticatedStudentsNewRoute
   '/subjects/new': typeof AuthenticatedSubjectsNewRoute
   '/teachers/new': typeof AuthenticatedTeachersNewRoute
+  '/timetables/combine': typeof AuthenticatedTimetablesCombineRoute
   '/timetables/new': typeof AuthenticatedTimetablesNewRoute
   '/codes/$id/values': typeof AuthenticatedCodesIdValuesRouteWithChildren
   '/codes/edit/$id': typeof AuthenticatedCodesEditIdRoute
@@ -265,6 +282,7 @@ export interface FileRoutesByTo {
   '/subjects/edit/$id': typeof AuthenticatedSubjectsEditIdRoute
   '/subjects/view/$id': typeof AuthenticatedSubjectsViewIdRoute
   '/teachers/edit/$id': typeof AuthenticatedTeachersEditIdRoute
+  '/teachers/timetable/$id': typeof AuthenticatedTeachersTimetableIdRoute
   '/timetables/edit/$id': typeof AuthenticatedTimetablesEditIdRoute
   '/timetables/view/$id': typeof AuthenticatedTimetablesViewIdRoute
   '/codes/$id/values/new': typeof AuthenticatedCodesIdValuesNewRoute
@@ -289,6 +307,7 @@ export interface FileRoutesById {
   '/_authenticated/students/new': typeof AuthenticatedStudentsNewRoute
   '/_authenticated/subjects/new': typeof AuthenticatedSubjectsNewRoute
   '/_authenticated/teachers/new': typeof AuthenticatedTeachersNewRoute
+  '/_authenticated/timetables/combine': typeof AuthenticatedTimetablesCombineRoute
   '/_authenticated/timetables/new': typeof AuthenticatedTimetablesNewRoute
   '/_authenticated/codes/$id/values': typeof AuthenticatedCodesIdValuesRouteWithChildren
   '/_authenticated/codes/edit/$id': typeof AuthenticatedCodesEditIdRoute
@@ -298,6 +317,7 @@ export interface FileRoutesById {
   '/_authenticated/subjects/edit/$id': typeof AuthenticatedSubjectsEditIdRoute
   '/_authenticated/subjects/view/$id': typeof AuthenticatedSubjectsViewIdRoute
   '/_authenticated/teachers/edit/$id': typeof AuthenticatedTeachersEditIdRoute
+  '/_authenticated/teachers/timetable/$id': typeof AuthenticatedTeachersTimetableIdRoute
   '/_authenticated/timetables/edit/$id': typeof AuthenticatedTimetablesEditIdRoute
   '/_authenticated/timetables/view/$id': typeof AuthenticatedTimetablesViewIdRoute
   '/_authenticated/codes/$id/values/new': typeof AuthenticatedCodesIdValuesNewRoute
@@ -322,6 +342,7 @@ export interface FileRouteTypes {
     | '/students/new'
     | '/subjects/new'
     | '/teachers/new'
+    | '/timetables/combine'
     | '/timetables/new'
     | '/codes/$id/values'
     | '/codes/edit/$id'
@@ -331,6 +352,7 @@ export interface FileRouteTypes {
     | '/subjects/edit/$id'
     | '/subjects/view/$id'
     | '/teachers/edit/$id'
+    | '/teachers/timetable/$id'
     | '/timetables/edit/$id'
     | '/timetables/view/$id'
     | '/codes/$id/values/new'
@@ -353,6 +375,7 @@ export interface FileRouteTypes {
     | '/students/new'
     | '/subjects/new'
     | '/teachers/new'
+    | '/timetables/combine'
     | '/timetables/new'
     | '/codes/$id/values'
     | '/codes/edit/$id'
@@ -362,6 +385,7 @@ export interface FileRouteTypes {
     | '/subjects/edit/$id'
     | '/subjects/view/$id'
     | '/teachers/edit/$id'
+    | '/teachers/timetable/$id'
     | '/timetables/edit/$id'
     | '/timetables/view/$id'
     | '/codes/$id/values/new'
@@ -385,6 +409,7 @@ export interface FileRouteTypes {
     | '/_authenticated/students/new'
     | '/_authenticated/subjects/new'
     | '/_authenticated/teachers/new'
+    | '/_authenticated/timetables/combine'
     | '/_authenticated/timetables/new'
     | '/_authenticated/codes/$id/values'
     | '/_authenticated/codes/edit/$id'
@@ -394,6 +419,7 @@ export interface FileRouteTypes {
     | '/_authenticated/subjects/edit/$id'
     | '/_authenticated/subjects/view/$id'
     | '/_authenticated/teachers/edit/$id'
+    | '/_authenticated/teachers/timetable/$id'
     | '/_authenticated/timetables/edit/$id'
     | '/_authenticated/timetables/view/$id'
     | '/_authenticated/codes/$id/values/new'
@@ -484,6 +510,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTimetablesNewRouteImport
       parentRoute: typeof AuthenticatedTimetablesRoute
     }
+    '/_authenticated/timetables/combine': {
+      id: '/_authenticated/timetables/combine'
+      path: '/combine'
+      fullPath: '/timetables/combine'
+      preLoaderRoute: typeof AuthenticatedTimetablesCombineRouteImport
+      parentRoute: typeof AuthenticatedTimetablesRoute
+    }
     '/_authenticated/teachers/new': {
       id: '/_authenticated/teachers/new'
       path: '/new'
@@ -546,6 +579,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/timetables/edit/$id'
       preLoaderRoute: typeof AuthenticatedTimetablesEditIdRouteImport
       parentRoute: typeof AuthenticatedTimetablesRoute
+    }
+    '/_authenticated/teachers/timetable/$id': {
+      id: '/_authenticated/teachers/timetable/$id'
+      path: '/timetable/$id'
+      fullPath: '/teachers/timetable/$id'
+      preLoaderRoute: typeof AuthenticatedTeachersTimetableIdRouteImport
+      parentRoute: typeof AuthenticatedTeachersRoute
     }
     '/_authenticated/teachers/edit/$id': {
       id: '/_authenticated/teachers/edit/$id'
@@ -728,11 +768,13 @@ const AuthenticatedSubjectsRouteWithChildren =
 interface AuthenticatedTeachersRouteChildren {
   AuthenticatedTeachersNewRoute: typeof AuthenticatedTeachersNewRoute
   AuthenticatedTeachersEditIdRoute: typeof AuthenticatedTeachersEditIdRoute
+  AuthenticatedTeachersTimetableIdRoute: typeof AuthenticatedTeachersTimetableIdRoute
 }
 
 const AuthenticatedTeachersRouteChildren: AuthenticatedTeachersRouteChildren = {
   AuthenticatedTeachersNewRoute: AuthenticatedTeachersNewRoute,
   AuthenticatedTeachersEditIdRoute: AuthenticatedTeachersEditIdRoute,
+  AuthenticatedTeachersTimetableIdRoute: AuthenticatedTeachersTimetableIdRoute,
 }
 
 const AuthenticatedTeachersRouteWithChildren =
@@ -741,6 +783,7 @@ const AuthenticatedTeachersRouteWithChildren =
   )
 
 interface AuthenticatedTimetablesRouteChildren {
+  AuthenticatedTimetablesCombineRoute: typeof AuthenticatedTimetablesCombineRoute
   AuthenticatedTimetablesNewRoute: typeof AuthenticatedTimetablesNewRoute
   AuthenticatedTimetablesEditIdRoute: typeof AuthenticatedTimetablesEditIdRoute
   AuthenticatedTimetablesViewIdRoute: typeof AuthenticatedTimetablesViewIdRoute
@@ -748,6 +791,7 @@ interface AuthenticatedTimetablesRouteChildren {
 
 const AuthenticatedTimetablesRouteChildren: AuthenticatedTimetablesRouteChildren =
   {
+    AuthenticatedTimetablesCombineRoute: AuthenticatedTimetablesCombineRoute,
     AuthenticatedTimetablesNewRoute: AuthenticatedTimetablesNewRoute,
     AuthenticatedTimetablesEditIdRoute: AuthenticatedTimetablesEditIdRoute,
     AuthenticatedTimetablesViewIdRoute: AuthenticatedTimetablesViewIdRoute,

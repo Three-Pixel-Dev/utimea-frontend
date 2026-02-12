@@ -13,28 +13,27 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { timetablesService, type Timetable } from '@/features/timetables/timetables-service'
 import { codesService } from '@/features/codes/codes-service'
-import { useMemo, useState } from 'react'
+import { teachersService } from '@/features/teachers/teachers-service'
+import { useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Loader2 } from 'lucide-react'
-import { TimetableCellForm } from '@/features/timetables/timetable-cell-form'
 import { cn } from '@/lib/utils'
 
 const topNav: never[] = []
 
-export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
+export const Route = createFileRoute('/_authenticated/teachers/timetable/$id')({
   component: () => {
     const { id } = Route.useParams()
     const navigate = useNavigate()
-    const [selectedCell, setSelectedCell] = useState<{
-      timetable: Timetable | null
-      dayId: number
-      periodId: number
-    } | null>(null)
-    const [isFormOpen, setIsFormOpen] = useState(false)
 
-    const { data: timetableInfoWithTimetables, isLoading: isLoadingData } = useQuery({
-      queryKey: ['timetable-info-with-timetables', id],
-      queryFn: () => timetablesService.getInfoById(Number(id)),
+    const { data: teacher, isLoading: isLoadingTeacher } = useQuery({
+      queryKey: ['teacher', id],
+      queryFn: () => teachersService.getById(Number(id)),
+    })
+
+    const { data: timetables = [], isLoading: isLoadingTimetables } = useQuery({
+      queryKey: ['teacher-timetables', id],
+      queryFn: () => timetablesService.getByTeacherId(Number(id)),
     })
 
     const { data: timetableDays = [], isLoading: isLoadingDays } = useQuery({
@@ -47,9 +46,6 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
       queryFn: () => codesService.getCodeValuesByConstantValue('TIMETABLE_PERIODS'),
     })
 
-    const allTimetables = timetableInfoWithTimetables?.timetables || []
-    const timetableInfo = timetableInfoWithTimetables
-
     const timetableGrid = useMemo(() => {
       if (!timetableDays.length || !timetablePeriods.length) {
         return null
@@ -59,7 +55,7 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
       const dayMapByName = new Map(timetableDays.map(day => [day.codeValue.toLowerCase().trim(), day.id]))
       const periodMapByName = new Map(timetablePeriods.map(period => [period.codeValue.toLowerCase().trim(), period.id]))
 
-      const grid: Record<string, Record<string, (typeof allTimetables)[0] | null>> = {}
+      const grid: Record<string, Record<string, (typeof timetables)[0] | null>> = {}
 
       // Initialize grid with all day/period combinations
       timetableDays.forEach((day) => {
@@ -70,8 +66,8 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
       })
 
       // Populate grid with timetable entries
-      if (allTimetables.length > 0) {
-        allTimetables.forEach((tt) => {
+      if (timetables.length > 0) {
+        timetables.forEach((tt) => {
           // Match by name first (more reliable than ID)
           const dayName = tt.timetableData.timetableDay.name.toLowerCase().trim()
           const periodName = tt.timetableData.timetablePeriod.name.toLowerCase().trim()
@@ -89,54 +85,32 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
       }
 
       return grid
-    }, [allTimetables, timetableDays, timetablePeriods])
+    }, [timetables, timetableDays, timetablePeriods])
 
-    const isLoading = isLoadingData || isLoadingDays || isLoadingPeriods
-
-    const handleCellClick = (dayId: number, periodId: number) => {
-      const entry = timetableGrid?.[String(dayId)]?.[String(periodId)] || null
-      setSelectedCell({
-        timetable: entry,
-        dayId,
-        periodId,
-      })
-      setIsFormOpen(true)
-    }
-
-    // Create a map of unique subjects with their lecturers
+    // Create a map of unique subjects
     const subjectLegend = useMemo(() => {
       const subjectMap = new Map<
         string,
         {
           code: string
           description: string | null
-          lecturers: string[]
         }
       >()
 
-      allTimetables.forEach((tt) => {
+      timetables.forEach((tt) => {
         const subjectCode = tt.timetableData.subject.code
         if (!subjectMap.has(subjectCode)) {
-          // Get lecturers from subject teachers
-          const teachers = tt.timetableData.subject.teachers || []
-          const lecturerNames = teachers
-            .map((t) => t.name)
-            .filter((name: string) => name)
-
           subjectMap.set(subjectCode, {
             code: subjectCode,
             description: tt.timetableData.subject.description,
-            lecturers: lecturerNames,
           })
         }
       })
 
       return Array.from(subjectMap.values()).sort((a, b) => a.code.localeCompare(b.code))
-    }, [allTimetables])
+    }, [timetables])
 
-    const handleFormSuccess = () => {
-      // Refetch data will happen automatically via query invalidation
-    }
+    const isLoading = isLoadingTeacher || isLoadingTimetables || isLoadingDays || isLoadingPeriods
 
     return (
       <>
@@ -157,11 +131,11 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                 <Button
                   variant='ghost'
                   size='sm'
-                  onClick={() => navigate({ to: '/timetables' as any })}
+                  onClick={() => navigate({ to: '/teachers' as any })}
                   className='-ml-2'
                 >
                   <ArrowLeft className='mr-2 h-4 w-4' />
-                  Back to Timetables
+                  Back to Teachers
                 </Button>
               </div>
             </div>
@@ -170,18 +144,20 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
               <CardHeader>
                 <div className='flex items-center gap-2'>
                   <Calendar className='h-5 w-5 text-primary' />
-                  <CardTitle>Timetable View</CardTitle>
+                  <CardTitle>Teacher Timetable</CardTitle>
                 </div>
                 <CardDescription>
-                  {timetableInfo ? (
+                  {teacher ? (
                     <>
                       <Badge variant='secondary' className='mr-2'>
-                        {timetableInfo.majorSection.name}
+                        {teacher.name}
                       </Badge>
-                      <span>{timetableInfo.academicYear.name}</span>
+                      {teacher.degree && (
+                        <span className='text-muted-foreground'>{teacher.degree}</span>
+                      )}
                     </>
                   ) : (
-                    'Loading timetable information...'
+                    'Loading teacher information...'
                   )}
                 </CardDescription>
               </CardHeader>
@@ -223,12 +199,11 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                                 return (
                                   <td
                                     key={period.id}
-                                    onClick={() => handleCellClick(Number(day.id), Number(period.id))}
                                     className={cn(
-                                      'border-r p-3 text-center text-sm last:border-r-0 cursor-pointer transition-colors min-w-[120px]',
+                                      'border-r p-3 text-center text-sm last:border-r-0 min-w-[120px]',
                                       entry
-                                        ? 'bg-primary/5 hover:bg-primary/10'
-                                        : 'hover:bg-muted/50'
+                                        ? 'bg-primary/5'
+                                        : ''
                                     )}
                                   >
                                     {isLoading && !entry ? (
@@ -243,9 +218,12 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                                         <div className='text-xs text-muted-foreground'>
                                           {entry.timetableData.room.name}
                                         </div>
+                                        <div className='text-xs text-muted-foreground'>
+                                          {entry.timetableInfo.majorSection.name}
+                                        </div>
                                       </div>
                                     ) : (
-                                      <span className='text-muted-foreground/50 text-xs'>Click to add</span>
+                                      <span className='text-muted-foreground/50 text-xs'>-</span>
                                     )}
                                   </td>
                                 )
@@ -265,7 +243,6 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                               <tr className='border-b bg-muted/30'>
                                 <th className='p-3 text-left font-semibold text-sm'>Subject Code</th>
                                 <th className='p-3 text-left font-semibold text-sm'>Subject Description</th>
-                                <th className='p-3 text-left font-semibold text-sm'>Lecturer</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -277,11 +254,6 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
                                   <td className='p-3 font-medium text-sm'>{subject.code}</td>
                                   <td className='p-3 text-sm text-muted-foreground'>
                                     {subject.description || '-'}
-                                  </td>
-                                  <td className='p-3 text-sm text-muted-foreground'>
-                                    {subject.lecturers.length > 0
-                                      ? subject.lecturers.join(', ')
-                                      : '-'}
                                   </td>
                                 </tr>
                               ))}
@@ -300,19 +272,6 @@ export const Route = createFileRoute('/_authenticated/timetables/view/$id')({
             </Card>
           </div>
         </Main>
-
-        {selectedCell && timetableInfo && (
-          <TimetableCellForm
-            open={isFormOpen}
-            onOpenChange={setIsFormOpen}
-            timetable={selectedCell.timetable}
-            dayId={selectedCell.dayId}
-            periodId={selectedCell.periodId}
-            majorSectionId={timetableInfo.majorSection.id}
-            academicYearId={timetableInfo.academicYear.id}
-            onSuccess={handleFormSuccess}
-          />
-        )}
       </>
     )
   },
