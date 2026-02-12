@@ -65,6 +65,13 @@ export type Timetable = {
       name: string
       capacity: number | null
     }
+    subjectType: string
+    teacher: {
+        id: number
+        name: string
+        phoneNumber: string | null
+        degree: string | null
+      } | null
   }
   masterData: {
     id: number
