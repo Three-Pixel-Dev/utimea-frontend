@@ -117,10 +117,10 @@ export const studentsService = {
     formData.append('file', file)
     try {
       const response = await apiClient.post<ApiResponse<ExcelImportResult>>('/api/students/excel/import', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
       
       // Log for debugging (remove in production if needed)
       if (import.meta.env.DEV) {

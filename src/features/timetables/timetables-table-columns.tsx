@@ -19,7 +19,7 @@ function TimetableActions({ id }: { id: number }) {
       <DropdownMenuTrigger asChild>
         <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
           <MoreVertical className='h-4 w-4' />
-        </Button>
+      </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
         <DropdownMenuItem onClick={() => navigate({ to: `/timetables/view/${id}` as any })}>

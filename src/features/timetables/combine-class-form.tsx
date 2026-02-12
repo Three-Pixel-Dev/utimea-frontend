@@ -190,12 +190,19 @@ export function CombineClassForm() {
   async function onSubmit(data: FormData) {
     setIsLoading(true)
     try {
-      // TODO: Implement combine class API call
-      console.log('Combine class data:', data)
+      await timetablesService.combineClass({
+        period1Id: Number(data.period1Id),
+        period2Id: Number(data.period2Id),
+        combineDayId: Number(data.combineDayId),
+        combinePeriodId: Number(data.combinePeriodId),
+        roomId: Number(data.roomId),
+        teacherId: Number(data.teacherId),
+      })
       toast.success('Classes combined successfully!')
       navigate({ to: '/timetables' })
-    } catch (error) {
-      toast.error('Failed to combine classes')
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to combine classes'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -385,7 +392,7 @@ export function CombineClassForm() {
               {/* Section 1 Period List */}
               <div className='space-y-3'>
                 <h3 className='font-semibold text-sm'>
-                  1st section DB subject period list
+                  Section 1 - Subject Period List
                 </h3>
                 {section1Timetables.length > 0 ? (
                   <FormField
@@ -447,7 +454,7 @@ export function CombineClassForm() {
               {/* Section 2 Period List */}
               <div className='space-y-3'>
                 <h3 className='font-semibold text-sm'>
-                  2nd section DB subject period list
+                  Section 2 - Subject Period List
                 </h3>
                 {section2Timetables.length > 0 ? (
                   <FormField

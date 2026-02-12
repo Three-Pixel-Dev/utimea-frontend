@@ -49,8 +49,8 @@ export function Students() {
     try {
       const result = await studentsService.importFromExcel(file)
       
-      // Invalidate queries to refresh the list
-      queryClient.invalidateQueries({ queryKey: ['students'] })
+    // Invalidate queries to refresh the list
+    queryClient.invalidateQueries({ queryKey: ['students'] })
       
       // Check if result is valid - be more lenient
       if (!result || typeof result !== 'object') {

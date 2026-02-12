@@ -163,4 +163,15 @@ export const timetablesService = {
     const response = await apiClient.get<ApiResponse<Timetable[]>>(`/api/timetables/teacher/${teacherId}`)
     return response.data.data as Timetable[]
   },
+
+  combineClass: async (request: {
+    period1Id: number
+    period2Id: number
+    combineDayId: number
+    combinePeriodId: number
+    roomId: number
+    teacherId: number
+  }): Promise<void> => {
+    await apiClient.post<ApiResponse<void>>('/api/timetables/combine', request)
+  },
 }

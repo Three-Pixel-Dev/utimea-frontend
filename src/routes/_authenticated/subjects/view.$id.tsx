@@ -42,20 +42,20 @@ export const Route = createFileRoute('/_authenticated/subjects/view/$id')({
           {!subject ? (
             <div>Loading...</div>
           ) : (
-            <div className='space-y-6'>
-              <div className='flex items-center gap-4'>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => navigate({ to: '/subjects' as any })}
-                  className='-ml-2'
-                >
-                  <ArrowLeft className='mr-2 h-4 w-4' />
-                  Back to Subjects
-                </Button>
-              </div>
+      <div className='space-y-6'>
+        <div className='flex items-center gap-4'>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => navigate({ to: '/subjects' as any })}
+            className='-ml-2'
+          >
+            <ArrowLeft className='mr-2 h-4 w-4' />
+            Back to Subjects
+          </Button>
+        </div>
 
-              <Card>
+        <Card>
           <CardHeader>
             <CardTitle>Subject Details</CardTitle>
             <CardDescription>View subject information</CardDescription>
@@ -137,7 +137,7 @@ export const Route = createFileRoute('/_authenticated/subjects/view/$id')({
             </div>
           </CardContent>
         </Card>
-            </div>
+      </div>
           )}
         </Main>
       </>

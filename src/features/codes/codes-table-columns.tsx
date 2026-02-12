@@ -24,7 +24,7 @@ function CodeActions({ code }: { code: Code }) {
       <DropdownMenuContent align='end'>
         <DropdownMenuItem onClick={() => navigate({ to: `/codes/${code.id}` as any })}>
           <Eye className='mr-2 h-4 w-4' />
-          View
+      View
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

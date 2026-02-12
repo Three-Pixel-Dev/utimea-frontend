@@ -313,37 +313,37 @@ export function TimetableCellForm({
                     render={({ field }) => {
                       const selectedSubject = subjects.find(s => String(s.id) === field.value)
                       return (
-                        <FormItem className='space-y-2'>
-                          <FormLabel className='flex items-center gap-2 text-sm font-medium'>
-                            <BookOpen className='h-4 w-4' />
-                            Subject
-                          </FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className='h-12 text-base justify-start'>
-                                <SelectValue placeholder='Select subject' />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {subjects.map((subject) => (
-                                <SelectItem key={subject.id} value={String(subject.id)} className='text-left'>
-                                  <div className='flex flex-col items-start py-1'>
-                                    <span className='font-medium leading-tight text-left'>{subject.code}</span>
-                                    {subject.description && (
-                                      <span className='text-xs text-muted-foreground leading-tight mt-0.5 text-left'>
-                                        {subject.description}
-                                      </span>
-                                    )}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
+                      <FormItem className='space-y-2'>
+                        <FormLabel className='flex items-center gap-2 text-sm font-medium'>
+                          <BookOpen className='h-4 w-4' />
+                          Subject
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className='h-12 text-base justify-start'>
+                              <SelectValue placeholder='Select subject' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {subjects.map((subject) => (
+                              <SelectItem key={subject.id} value={String(subject.id)} className='text-left'>
+                                <div className='flex flex-col items-start py-1'>
+                                  <span className='font-medium leading-tight text-left'>{subject.code}</span>
+                                  {subject.description && (
+                                    <span className='text-xs text-muted-foreground leading-tight mt-0.5 text-left'>
+                                      {subject.description}
+                                    </span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
                       )
                     }}
                   />
