@@ -106,6 +106,25 @@ export type TimetableInfoFilter = {
   academicYearId?: number
 }
 
+// --- NEW TYPE FOR GENERATION ---
+export type GenerateTimetableRequest = {
+  academicYearId: number
+  sem: string // "FIRST_SEM" | "SECOND_SEM"
+  numberOfStudentsInFirstYear: number
+  numberOfStudentsInSecondYear: number
+  numberOfStudentInThirdYear: number
+  numberOfStudentInFourthYear: number
+  thirdYearMajorCounts: {
+    SE: number
+    KE: number
+    HPC: number
+    CN: number
+    CSec: number
+    BIS: number
+    ES: number
+  }
+}
+
 export const timetablesService = {
   getAllInfo: async (pageAndFilter?: PageAndFilter<TimetableInfoFilter>): Promise<PaginationResponse<TimetableInfo>> => {
     const requestBody: PageAndFilter<TimetableInfoFilter> = {
@@ -180,5 +199,10 @@ export const timetablesService = {
     teacherId: number
   }): Promise<void> => {
     await apiClient.post<ApiResponse<void>>('/api/timetables/combine', request)
+  },
+
+  generate: async (request: GenerateTimetableRequest): Promise<string> => {
+    const response = await apiClient.post<ApiResponse<string>>('/api/timetables/generate', request)
+    return response.data.data
   },
 }

@@ -7,6 +7,7 @@ import { AdminTableLayout } from '@/components/layout/admin-table-layout'
 import { Button } from '@/components/ui/button'
 import { timetablesService } from './timetables-service'
 import { timetablesTableColumns } from './timetables-table-columns'
+import { GenerateTimetableDialog } from './generate-timetable-dialog'
 
 export function Timetables() {
   const [pagination, setPagination] = useState<PaginationState>({
@@ -41,14 +42,17 @@ export function Timetables() {
       pagination={pagination}
       onPaginationChange={setPagination}
       headerActions={
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={() => navigate({ to: '/timetables/combine' as any })}
-        >
-          <Users className='mr-2 h-4 w-4' />
-          Combine Class
-        </Button>
+        <div className="flex items-center gap-2">
+          <GenerateTimetableDialog />
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => navigate({ to: '/timetables/combine' as any })}
+          >
+            <Users className='mr-2 h-4 w-4' />
+            Combine Class
+          </Button>
+        </div>
       }
     />
   )
