@@ -23,13 +23,24 @@ import { Route as AuthenticatedTimetableChangeRequestsIndexRouteImport } from '.
 import { Route as AuthenticatedTimetablesNewRouteImport } from './routes/_authenticated/timetables/new'
 import { Route as AuthenticatedTimetablesCombineRouteImport } from './routes/_authenticated/timetables/combine'
 import { Route as AuthenticatedTimetableChangeRequestsIdRouteImport } from './routes/_authenticated/timetable-change-requests/$id'
+import { Route as AuthenticatedTeachersWelcomeRouteImport } from './routes/_authenticated/teachers/welcome'
 import { Route as AuthenticatedTeachersNewRouteImport } from './routes/_authenticated/teachers/new'
 import { Route as AuthenticatedSubjectsNewRouteImport } from './routes/_authenticated/subjects/new'
+import { Route as AuthenticatedStudentsWelcomeRouteImport } from './routes/_authenticated/students/welcome'
 import { Route as AuthenticatedStudentsNewRouteImport } from './routes/_authenticated/students/new'
 import { Route as AuthenticatedRoomsNewRouteImport } from './routes/_authenticated/rooms/new'
 import { Route as AuthenticatedMajorSectionsNewRouteImport } from './routes/_authenticated/major-sections/new'
 import { Route as AuthenticatedCodesNewRouteImport } from './routes/_authenticated/codes/new'
 import { Route as AuthenticatedCodesIdRouteImport } from './routes/_authenticated/codes/$id'
+import { Route as AuthenticatedAdminTimetablesRouteImport } from './routes/_authenticated/admin/timetables'
+import { Route as AuthenticatedAdminTimetableChangeRequestsRouteImport } from './routes/_authenticated/admin/timetable-change-requests'
+import { Route as AuthenticatedAdminTeachersRouteImport } from './routes/_authenticated/admin/teachers'
+import { Route as AuthenticatedAdminSubjectsRouteImport } from './routes/_authenticated/admin/subjects'
+import { Route as AuthenticatedAdminStudentsRouteImport } from './routes/_authenticated/admin/students'
+import { Route as AuthenticatedAdminRoomsRouteImport } from './routes/_authenticated/admin/rooms'
+import { Route as AuthenticatedAdminMajorSectionsRouteImport } from './routes/_authenticated/admin/major-sections'
+import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
+import { Route as AuthenticatedAdminCodesRouteImport } from './routes/_authenticated/admin/codes'
 import { Route as AuthenticatedTimetablesViewIdRouteImport } from './routes/_authenticated/timetables/view.$id'
 import { Route as AuthenticatedTimetablesEditIdRouteImport } from './routes/_authenticated/timetables/edit.$id'
 import { Route as AuthenticatedTeachersTimetableIdRouteImport } from './routes/_authenticated/teachers/timetable.$id'
@@ -41,6 +52,10 @@ import { Route as AuthenticatedRoomsEditIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedMajorSectionsEditIdRouteImport } from './routes/_authenticated/major-sections/edit.$id'
 import { Route as AuthenticatedCodesEditIdRouteImport } from './routes/_authenticated/codes/edit.$id'
 import { Route as AuthenticatedCodesIdValuesRouteImport } from './routes/_authenticated/codes/$id/values'
+import { Route as AuthenticatedAdminTimetablesNewRouteImport } from './routes/_authenticated/admin/timetables/new'
+import { Route as AuthenticatedAdminTeachersNewRouteImport } from './routes/_authenticated/admin/teachers/new'
+import { Route as AuthenticatedAdminStudentsNewRouteImport } from './routes/_authenticated/admin/students/new'
+import { Route as AuthenticatedAdminRoomsNewRouteImport } from './routes/_authenticated/admin/rooms/new'
 import { Route as AuthenticatedCodesIdValuesNewRouteImport } from './routes/_authenticated/codes/$id/values/new'
 import { Route as AuthenticatedCodesIdValuesEditValueIdRouteImport } from './routes/_authenticated/codes/$id/values/edit.$valueId'
 
@@ -118,6 +133,12 @@ const AuthenticatedTimetableChangeRequestsIdRoute =
     path: '/timetable-change-requests/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTeachersWelcomeRoute =
+  AuthenticatedTeachersWelcomeRouteImport.update({
+    id: '/welcome',
+    path: '/welcome',
+    getParentRoute: () => AuthenticatedTeachersRoute,
+  } as any)
 const AuthenticatedTeachersNewRoute =
   AuthenticatedTeachersNewRouteImport.update({
     id: '/new',
@@ -129,6 +150,12 @@ const AuthenticatedSubjectsNewRoute =
     id: '/new',
     path: '/new',
     getParentRoute: () => AuthenticatedSubjectsRoute,
+  } as any)
+const AuthenticatedStudentsWelcomeRoute =
+  AuthenticatedStudentsWelcomeRouteImport.update({
+    id: '/welcome',
+    path: '/welcome',
+    getParentRoute: () => AuthenticatedStudentsRoute,
   } as any)
 const AuthenticatedStudentsNewRoute =
   AuthenticatedStudentsNewRouteImport.update({
@@ -156,6 +183,58 @@ const AuthenticatedCodesIdRoute = AuthenticatedCodesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => AuthenticatedCodesRoute,
+} as any)
+const AuthenticatedAdminTimetablesRoute =
+  AuthenticatedAdminTimetablesRouteImport.update({
+    id: '/admin/timetables',
+    path: '/admin/timetables',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminTimetableChangeRequestsRoute =
+  AuthenticatedAdminTimetableChangeRequestsRouteImport.update({
+    id: '/admin/timetable-change-requests',
+    path: '/admin/timetable-change-requests',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminTeachersRoute =
+  AuthenticatedAdminTeachersRouteImport.update({
+    id: '/admin/teachers',
+    path: '/admin/teachers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminSubjectsRoute =
+  AuthenticatedAdminSubjectsRouteImport.update({
+    id: '/admin/subjects',
+    path: '/admin/subjects',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminStudentsRoute =
+  AuthenticatedAdminStudentsRouteImport.update({
+    id: '/admin/students',
+    path: '/admin/students',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminRoomsRoute = AuthenticatedAdminRoomsRouteImport.update({
+  id: '/admin/rooms',
+  path: '/admin/rooms',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminMajorSectionsRoute =
+  AuthenticatedAdminMajorSectionsRouteImport.update({
+    id: '/admin/major-sections',
+    path: '/admin/major-sections',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminDashboardRoute =
+  AuthenticatedAdminDashboardRouteImport.update({
+    id: '/admin/dashboard',
+    path: '/admin/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminCodesRoute = AuthenticatedAdminCodesRouteImport.update({
+  id: '/admin/codes',
+  path: '/admin/codes',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTimetablesViewIdRoute =
   AuthenticatedTimetablesViewIdRouteImport.update({
@@ -223,6 +302,30 @@ const AuthenticatedCodesIdValuesRoute =
     path: '/values',
     getParentRoute: () => AuthenticatedCodesIdRoute,
   } as any)
+const AuthenticatedAdminTimetablesNewRoute =
+  AuthenticatedAdminTimetablesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminTimetablesRoute,
+  } as any)
+const AuthenticatedAdminTeachersNewRoute =
+  AuthenticatedAdminTeachersNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminTeachersRoute,
+  } as any)
+const AuthenticatedAdminStudentsNewRoute =
+  AuthenticatedAdminStudentsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminStudentsRoute,
+  } as any)
+const AuthenticatedAdminRoomsNewRoute =
+  AuthenticatedAdminRoomsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminRoomsRoute,
+  } as any)
 const AuthenticatedCodesIdValuesNewRoute =
   AuthenticatedCodesIdValuesNewRouteImport.update({
     id: '/new',
@@ -246,17 +349,32 @@ export interface FileRoutesByFullPath {
   '/subjects': typeof AuthenticatedSubjectsRouteWithChildren
   '/teachers': typeof AuthenticatedTeachersRouteWithChildren
   '/timetables': typeof AuthenticatedTimetablesRouteWithChildren
+  '/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/major-sections': typeof AuthenticatedAdminMajorSectionsRoute
+  '/admin/rooms': typeof AuthenticatedAdminRoomsRouteWithChildren
+  '/admin/students': typeof AuthenticatedAdminStudentsRouteWithChildren
+  '/admin/subjects': typeof AuthenticatedAdminSubjectsRoute
+  '/admin/teachers': typeof AuthenticatedAdminTeachersRouteWithChildren
+  '/admin/timetable-change-requests': typeof AuthenticatedAdminTimetableChangeRequestsRoute
+  '/admin/timetables': typeof AuthenticatedAdminTimetablesRouteWithChildren
   '/codes/$id': typeof AuthenticatedCodesIdRouteWithChildren
   '/codes/new': typeof AuthenticatedCodesNewRoute
   '/major-sections/new': typeof AuthenticatedMajorSectionsNewRoute
   '/rooms/new': typeof AuthenticatedRoomsNewRoute
   '/students/new': typeof AuthenticatedStudentsNewRoute
+  '/students/welcome': typeof AuthenticatedStudentsWelcomeRoute
   '/subjects/new': typeof AuthenticatedSubjectsNewRoute
   '/teachers/new': typeof AuthenticatedTeachersNewRoute
+  '/teachers/welcome': typeof AuthenticatedTeachersWelcomeRoute
   '/timetable-change-requests/$id': typeof AuthenticatedTimetableChangeRequestsIdRoute
   '/timetables/combine': typeof AuthenticatedTimetablesCombineRoute
   '/timetables/new': typeof AuthenticatedTimetablesNewRoute
   '/timetable-change-requests/': typeof AuthenticatedTimetableChangeRequestsIndexRoute
+  '/admin/rooms/new': typeof AuthenticatedAdminRoomsNewRoute
+  '/admin/students/new': typeof AuthenticatedAdminStudentsNewRoute
+  '/admin/teachers/new': typeof AuthenticatedAdminTeachersNewRoute
+  '/admin/timetables/new': typeof AuthenticatedAdminTimetablesNewRoute
   '/codes/$id/values': typeof AuthenticatedCodesIdValuesRouteWithChildren
   '/codes/edit/$id': typeof AuthenticatedCodesEditIdRoute
   '/major-sections/edit/$id': typeof AuthenticatedMajorSectionsEditIdRoute
@@ -281,17 +399,32 @@ export interface FileRoutesByTo {
   '/teachers': typeof AuthenticatedTeachersRouteWithChildren
   '/timetables': typeof AuthenticatedTimetablesRouteWithChildren
   '/': typeof AuthenticatedIndexRoute
+  '/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/major-sections': typeof AuthenticatedAdminMajorSectionsRoute
+  '/admin/rooms': typeof AuthenticatedAdminRoomsRouteWithChildren
+  '/admin/students': typeof AuthenticatedAdminStudentsRouteWithChildren
+  '/admin/subjects': typeof AuthenticatedAdminSubjectsRoute
+  '/admin/teachers': typeof AuthenticatedAdminTeachersRouteWithChildren
+  '/admin/timetable-change-requests': typeof AuthenticatedAdminTimetableChangeRequestsRoute
+  '/admin/timetables': typeof AuthenticatedAdminTimetablesRouteWithChildren
   '/codes/$id': typeof AuthenticatedCodesIdRouteWithChildren
   '/codes/new': typeof AuthenticatedCodesNewRoute
   '/major-sections/new': typeof AuthenticatedMajorSectionsNewRoute
   '/rooms/new': typeof AuthenticatedRoomsNewRoute
   '/students/new': typeof AuthenticatedStudentsNewRoute
+  '/students/welcome': typeof AuthenticatedStudentsWelcomeRoute
   '/subjects/new': typeof AuthenticatedSubjectsNewRoute
   '/teachers/new': typeof AuthenticatedTeachersNewRoute
+  '/teachers/welcome': typeof AuthenticatedTeachersWelcomeRoute
   '/timetable-change-requests/$id': typeof AuthenticatedTimetableChangeRequestsIdRoute
   '/timetables/combine': typeof AuthenticatedTimetablesCombineRoute
   '/timetables/new': typeof AuthenticatedTimetablesNewRoute
   '/timetable-change-requests': typeof AuthenticatedTimetableChangeRequestsIndexRoute
+  '/admin/rooms/new': typeof AuthenticatedAdminRoomsNewRoute
+  '/admin/students/new': typeof AuthenticatedAdminStudentsNewRoute
+  '/admin/teachers/new': typeof AuthenticatedAdminTeachersNewRoute
+  '/admin/timetables/new': typeof AuthenticatedAdminTimetablesNewRoute
   '/codes/$id/values': typeof AuthenticatedCodesIdValuesRouteWithChildren
   '/codes/edit/$id': typeof AuthenticatedCodesEditIdRoute
   '/major-sections/edit/$id': typeof AuthenticatedMajorSectionsEditIdRoute
@@ -318,17 +451,32 @@ export interface FileRoutesById {
   '/_authenticated/teachers': typeof AuthenticatedTeachersRouteWithChildren
   '/_authenticated/timetables': typeof AuthenticatedTimetablesRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/admin/codes': typeof AuthenticatedAdminCodesRoute
+  '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/_authenticated/admin/major-sections': typeof AuthenticatedAdminMajorSectionsRoute
+  '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRouteWithChildren
+  '/_authenticated/admin/students': typeof AuthenticatedAdminStudentsRouteWithChildren
+  '/_authenticated/admin/subjects': typeof AuthenticatedAdminSubjectsRoute
+  '/_authenticated/admin/teachers': typeof AuthenticatedAdminTeachersRouteWithChildren
+  '/_authenticated/admin/timetable-change-requests': typeof AuthenticatedAdminTimetableChangeRequestsRoute
+  '/_authenticated/admin/timetables': typeof AuthenticatedAdminTimetablesRouteWithChildren
   '/_authenticated/codes/$id': typeof AuthenticatedCodesIdRouteWithChildren
   '/_authenticated/codes/new': typeof AuthenticatedCodesNewRoute
   '/_authenticated/major-sections/new': typeof AuthenticatedMajorSectionsNewRoute
   '/_authenticated/rooms/new': typeof AuthenticatedRoomsNewRoute
   '/_authenticated/students/new': typeof AuthenticatedStudentsNewRoute
+  '/_authenticated/students/welcome': typeof AuthenticatedStudentsWelcomeRoute
   '/_authenticated/subjects/new': typeof AuthenticatedSubjectsNewRoute
   '/_authenticated/teachers/new': typeof AuthenticatedTeachersNewRoute
+  '/_authenticated/teachers/welcome': typeof AuthenticatedTeachersWelcomeRoute
   '/_authenticated/timetable-change-requests/$id': typeof AuthenticatedTimetableChangeRequestsIdRoute
   '/_authenticated/timetables/combine': typeof AuthenticatedTimetablesCombineRoute
   '/_authenticated/timetables/new': typeof AuthenticatedTimetablesNewRoute
   '/_authenticated/timetable-change-requests/': typeof AuthenticatedTimetableChangeRequestsIndexRoute
+  '/_authenticated/admin/rooms/new': typeof AuthenticatedAdminRoomsNewRoute
+  '/_authenticated/admin/students/new': typeof AuthenticatedAdminStudentsNewRoute
+  '/_authenticated/admin/teachers/new': typeof AuthenticatedAdminTeachersNewRoute
+  '/_authenticated/admin/timetables/new': typeof AuthenticatedAdminTimetablesNewRoute
   '/_authenticated/codes/$id/values': typeof AuthenticatedCodesIdValuesRouteWithChildren
   '/_authenticated/codes/edit/$id': typeof AuthenticatedCodesEditIdRoute
   '/_authenticated/major-sections/edit/$id': typeof AuthenticatedMajorSectionsEditIdRoute
@@ -355,17 +503,32 @@ export interface FileRouteTypes {
     | '/subjects'
     | '/teachers'
     | '/timetables'
+    | '/admin/codes'
+    | '/admin/dashboard'
+    | '/admin/major-sections'
+    | '/admin/rooms'
+    | '/admin/students'
+    | '/admin/subjects'
+    | '/admin/teachers'
+    | '/admin/timetable-change-requests'
+    | '/admin/timetables'
     | '/codes/$id'
     | '/codes/new'
     | '/major-sections/new'
     | '/rooms/new'
     | '/students/new'
+    | '/students/welcome'
     | '/subjects/new'
     | '/teachers/new'
+    | '/teachers/welcome'
     | '/timetable-change-requests/$id'
     | '/timetables/combine'
     | '/timetables/new'
     | '/timetable-change-requests/'
+    | '/admin/rooms/new'
+    | '/admin/students/new'
+    | '/admin/teachers/new'
+    | '/admin/timetables/new'
     | '/codes/$id/values'
     | '/codes/edit/$id'
     | '/major-sections/edit/$id'
@@ -390,17 +553,32 @@ export interface FileRouteTypes {
     | '/teachers'
     | '/timetables'
     | '/'
+    | '/admin/codes'
+    | '/admin/dashboard'
+    | '/admin/major-sections'
+    | '/admin/rooms'
+    | '/admin/students'
+    | '/admin/subjects'
+    | '/admin/teachers'
+    | '/admin/timetable-change-requests'
+    | '/admin/timetables'
     | '/codes/$id'
     | '/codes/new'
     | '/major-sections/new'
     | '/rooms/new'
     | '/students/new'
+    | '/students/welcome'
     | '/subjects/new'
     | '/teachers/new'
+    | '/teachers/welcome'
     | '/timetable-change-requests/$id'
     | '/timetables/combine'
     | '/timetables/new'
     | '/timetable-change-requests'
+    | '/admin/rooms/new'
+    | '/admin/students/new'
+    | '/admin/teachers/new'
+    | '/admin/timetables/new'
     | '/codes/$id/values'
     | '/codes/edit/$id'
     | '/major-sections/edit/$id'
@@ -426,17 +604,32 @@ export interface FileRouteTypes {
     | '/_authenticated/teachers'
     | '/_authenticated/timetables'
     | '/_authenticated/'
+    | '/_authenticated/admin/codes'
+    | '/_authenticated/admin/dashboard'
+    | '/_authenticated/admin/major-sections'
+    | '/_authenticated/admin/rooms'
+    | '/_authenticated/admin/students'
+    | '/_authenticated/admin/subjects'
+    | '/_authenticated/admin/teachers'
+    | '/_authenticated/admin/timetable-change-requests'
+    | '/_authenticated/admin/timetables'
     | '/_authenticated/codes/$id'
     | '/_authenticated/codes/new'
     | '/_authenticated/major-sections/new'
     | '/_authenticated/rooms/new'
     | '/_authenticated/students/new'
+    | '/_authenticated/students/welcome'
     | '/_authenticated/subjects/new'
     | '/_authenticated/teachers/new'
+    | '/_authenticated/teachers/welcome'
     | '/_authenticated/timetable-change-requests/$id'
     | '/_authenticated/timetables/combine'
     | '/_authenticated/timetables/new'
     | '/_authenticated/timetable-change-requests/'
+    | '/_authenticated/admin/rooms/new'
+    | '/_authenticated/admin/students/new'
+    | '/_authenticated/admin/teachers/new'
+    | '/_authenticated/admin/timetables/new'
     | '/_authenticated/codes/$id/values'
     | '/_authenticated/codes/edit/$id'
     | '/_authenticated/major-sections/edit/$id'
@@ -557,6 +750,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTimetableChangeRequestsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/teachers/welcome': {
+      id: '/_authenticated/teachers/welcome'
+      path: '/welcome'
+      fullPath: '/teachers/welcome'
+      preLoaderRoute: typeof AuthenticatedTeachersWelcomeRouteImport
+      parentRoute: typeof AuthenticatedTeachersRoute
+    }
     '/_authenticated/teachers/new': {
       id: '/_authenticated/teachers/new'
       path: '/new'
@@ -570,6 +770,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/subjects/new'
       preLoaderRoute: typeof AuthenticatedSubjectsNewRouteImport
       parentRoute: typeof AuthenticatedSubjectsRoute
+    }
+    '/_authenticated/students/welcome': {
+      id: '/_authenticated/students/welcome'
+      path: '/welcome'
+      fullPath: '/students/welcome'
+      preLoaderRoute: typeof AuthenticatedStudentsWelcomeRouteImport
+      parentRoute: typeof AuthenticatedStudentsRoute
     }
     '/_authenticated/students/new': {
       id: '/_authenticated/students/new'
@@ -605,6 +812,69 @@ declare module '@tanstack/react-router' {
       fullPath: '/codes/$id'
       preLoaderRoute: typeof AuthenticatedCodesIdRouteImport
       parentRoute: typeof AuthenticatedCodesRoute
+    }
+    '/_authenticated/admin/timetables': {
+      id: '/_authenticated/admin/timetables'
+      path: '/admin/timetables'
+      fullPath: '/admin/timetables'
+      preLoaderRoute: typeof AuthenticatedAdminTimetablesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/timetable-change-requests': {
+      id: '/_authenticated/admin/timetable-change-requests'
+      path: '/admin/timetable-change-requests'
+      fullPath: '/admin/timetable-change-requests'
+      preLoaderRoute: typeof AuthenticatedAdminTimetableChangeRequestsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/teachers': {
+      id: '/_authenticated/admin/teachers'
+      path: '/admin/teachers'
+      fullPath: '/admin/teachers'
+      preLoaderRoute: typeof AuthenticatedAdminTeachersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/subjects': {
+      id: '/_authenticated/admin/subjects'
+      path: '/admin/subjects'
+      fullPath: '/admin/subjects'
+      preLoaderRoute: typeof AuthenticatedAdminSubjectsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/students': {
+      id: '/_authenticated/admin/students'
+      path: '/admin/students'
+      fullPath: '/admin/students'
+      preLoaderRoute: typeof AuthenticatedAdminStudentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/rooms': {
+      id: '/_authenticated/admin/rooms'
+      path: '/admin/rooms'
+      fullPath: '/admin/rooms'
+      preLoaderRoute: typeof AuthenticatedAdminRoomsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/major-sections': {
+      id: '/_authenticated/admin/major-sections'
+      path: '/admin/major-sections'
+      fullPath: '/admin/major-sections'
+      preLoaderRoute: typeof AuthenticatedAdminMajorSectionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/dashboard': {
+      id: '/_authenticated/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/codes': {
+      id: '/_authenticated/admin/codes'
+      path: '/admin/codes'
+      fullPath: '/admin/codes'
+      preLoaderRoute: typeof AuthenticatedAdminCodesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/timetables/view/$id': {
       id: '/_authenticated/timetables/view/$id'
@@ -682,6 +952,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/codes/$id/values'
       preLoaderRoute: typeof AuthenticatedCodesIdValuesRouteImport
       parentRoute: typeof AuthenticatedCodesIdRoute
+    }
+    '/_authenticated/admin/timetables/new': {
+      id: '/_authenticated/admin/timetables/new'
+      path: '/new'
+      fullPath: '/admin/timetables/new'
+      preLoaderRoute: typeof AuthenticatedAdminTimetablesNewRouteImport
+      parentRoute: typeof AuthenticatedAdminTimetablesRoute
+    }
+    '/_authenticated/admin/teachers/new': {
+      id: '/_authenticated/admin/teachers/new'
+      path: '/new'
+      fullPath: '/admin/teachers/new'
+      preLoaderRoute: typeof AuthenticatedAdminTeachersNewRouteImport
+      parentRoute: typeof AuthenticatedAdminTeachersRoute
+    }
+    '/_authenticated/admin/students/new': {
+      id: '/_authenticated/admin/students/new'
+      path: '/new'
+      fullPath: '/admin/students/new'
+      preLoaderRoute: typeof AuthenticatedAdminStudentsNewRouteImport
+      parentRoute: typeof AuthenticatedAdminStudentsRoute
+    }
+    '/_authenticated/admin/rooms/new': {
+      id: '/_authenticated/admin/rooms/new'
+      path: '/new'
+      fullPath: '/admin/rooms/new'
+      preLoaderRoute: typeof AuthenticatedAdminRoomsNewRouteImport
+      parentRoute: typeof AuthenticatedAdminRoomsRoute
     }
     '/_authenticated/codes/$id/values/new': {
       id: '/_authenticated/codes/$id/values/new'
@@ -775,11 +1073,13 @@ const AuthenticatedRoomsRouteWithChildren =
 
 interface AuthenticatedStudentsRouteChildren {
   AuthenticatedStudentsNewRoute: typeof AuthenticatedStudentsNewRoute
+  AuthenticatedStudentsWelcomeRoute: typeof AuthenticatedStudentsWelcomeRoute
   AuthenticatedStudentsEditIdRoute: typeof AuthenticatedStudentsEditIdRoute
 }
 
 const AuthenticatedStudentsRouteChildren: AuthenticatedStudentsRouteChildren = {
   AuthenticatedStudentsNewRoute: AuthenticatedStudentsNewRoute,
+  AuthenticatedStudentsWelcomeRoute: AuthenticatedStudentsWelcomeRoute,
   AuthenticatedStudentsEditIdRoute: AuthenticatedStudentsEditIdRoute,
 }
 
@@ -807,12 +1107,14 @@ const AuthenticatedSubjectsRouteWithChildren =
 
 interface AuthenticatedTeachersRouteChildren {
   AuthenticatedTeachersNewRoute: typeof AuthenticatedTeachersNewRoute
+  AuthenticatedTeachersWelcomeRoute: typeof AuthenticatedTeachersWelcomeRoute
   AuthenticatedTeachersEditIdRoute: typeof AuthenticatedTeachersEditIdRoute
   AuthenticatedTeachersTimetableIdRoute: typeof AuthenticatedTeachersTimetableIdRoute
 }
 
 const AuthenticatedTeachersRouteChildren: AuthenticatedTeachersRouteChildren = {
   AuthenticatedTeachersNewRoute: AuthenticatedTeachersNewRoute,
+  AuthenticatedTeachersWelcomeRoute: AuthenticatedTeachersWelcomeRoute,
   AuthenticatedTeachersEditIdRoute: AuthenticatedTeachersEditIdRoute,
   AuthenticatedTeachersTimetableIdRoute: AuthenticatedTeachersTimetableIdRoute,
 }
@@ -842,6 +1144,62 @@ const AuthenticatedTimetablesRouteWithChildren =
     AuthenticatedTimetablesRouteChildren,
   )
 
+interface AuthenticatedAdminRoomsRouteChildren {
+  AuthenticatedAdminRoomsNewRoute: typeof AuthenticatedAdminRoomsNewRoute
+}
+
+const AuthenticatedAdminRoomsRouteChildren: AuthenticatedAdminRoomsRouteChildren =
+  {
+    AuthenticatedAdminRoomsNewRoute: AuthenticatedAdminRoomsNewRoute,
+  }
+
+const AuthenticatedAdminRoomsRouteWithChildren =
+  AuthenticatedAdminRoomsRoute._addFileChildren(
+    AuthenticatedAdminRoomsRouteChildren,
+  )
+
+interface AuthenticatedAdminStudentsRouteChildren {
+  AuthenticatedAdminStudentsNewRoute: typeof AuthenticatedAdminStudentsNewRoute
+}
+
+const AuthenticatedAdminStudentsRouteChildren: AuthenticatedAdminStudentsRouteChildren =
+  {
+    AuthenticatedAdminStudentsNewRoute: AuthenticatedAdminStudentsNewRoute,
+  }
+
+const AuthenticatedAdminStudentsRouteWithChildren =
+  AuthenticatedAdminStudentsRoute._addFileChildren(
+    AuthenticatedAdminStudentsRouteChildren,
+  )
+
+interface AuthenticatedAdminTeachersRouteChildren {
+  AuthenticatedAdminTeachersNewRoute: typeof AuthenticatedAdminTeachersNewRoute
+}
+
+const AuthenticatedAdminTeachersRouteChildren: AuthenticatedAdminTeachersRouteChildren =
+  {
+    AuthenticatedAdminTeachersNewRoute: AuthenticatedAdminTeachersNewRoute,
+  }
+
+const AuthenticatedAdminTeachersRouteWithChildren =
+  AuthenticatedAdminTeachersRoute._addFileChildren(
+    AuthenticatedAdminTeachersRouteChildren,
+  )
+
+interface AuthenticatedAdminTimetablesRouteChildren {
+  AuthenticatedAdminTimetablesNewRoute: typeof AuthenticatedAdminTimetablesNewRoute
+}
+
+const AuthenticatedAdminTimetablesRouteChildren: AuthenticatedAdminTimetablesRouteChildren =
+  {
+    AuthenticatedAdminTimetablesNewRoute: AuthenticatedAdminTimetablesNewRoute,
+  }
+
+const AuthenticatedAdminTimetablesRouteWithChildren =
+  AuthenticatedAdminTimetablesRoute._addFileChildren(
+    AuthenticatedAdminTimetablesRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCodesRoute: typeof AuthenticatedCodesRouteWithChildren
   AuthenticatedMajorSectionsRoute: typeof AuthenticatedMajorSectionsRouteWithChildren
@@ -851,6 +1209,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeachersRoute: typeof AuthenticatedTeachersRouteWithChildren
   AuthenticatedTimetablesRoute: typeof AuthenticatedTimetablesRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAdminCodesRoute: typeof AuthenticatedAdminCodesRoute
+  AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
+  AuthenticatedAdminMajorSectionsRoute: typeof AuthenticatedAdminMajorSectionsRoute
+  AuthenticatedAdminRoomsRoute: typeof AuthenticatedAdminRoomsRouteWithChildren
+  AuthenticatedAdminStudentsRoute: typeof AuthenticatedAdminStudentsRouteWithChildren
+  AuthenticatedAdminSubjectsRoute: typeof AuthenticatedAdminSubjectsRoute
+  AuthenticatedAdminTeachersRoute: typeof AuthenticatedAdminTeachersRouteWithChildren
+  AuthenticatedAdminTimetableChangeRequestsRoute: typeof AuthenticatedAdminTimetableChangeRequestsRoute
+  AuthenticatedAdminTimetablesRoute: typeof AuthenticatedAdminTimetablesRouteWithChildren
   AuthenticatedTimetableChangeRequestsIdRoute: typeof AuthenticatedTimetableChangeRequestsIdRoute
   AuthenticatedTimetableChangeRequestsIndexRoute: typeof AuthenticatedTimetableChangeRequestsIndexRoute
 }
@@ -864,6 +1231,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeachersRoute: AuthenticatedTeachersRouteWithChildren,
   AuthenticatedTimetablesRoute: AuthenticatedTimetablesRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAdminCodesRoute: AuthenticatedAdminCodesRoute,
+  AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
+  AuthenticatedAdminMajorSectionsRoute: AuthenticatedAdminMajorSectionsRoute,
+  AuthenticatedAdminRoomsRoute: AuthenticatedAdminRoomsRouteWithChildren,
+  AuthenticatedAdminStudentsRoute: AuthenticatedAdminStudentsRouteWithChildren,
+  AuthenticatedAdminSubjectsRoute: AuthenticatedAdminSubjectsRoute,
+  AuthenticatedAdminTeachersRoute: AuthenticatedAdminTeachersRouteWithChildren,
+  AuthenticatedAdminTimetableChangeRequestsRoute:
+    AuthenticatedAdminTimetableChangeRequestsRoute,
+  AuthenticatedAdminTimetablesRoute:
+    AuthenticatedAdminTimetablesRouteWithChildren,
   AuthenticatedTimetableChangeRequestsIdRoute:
     AuthenticatedTimetableChangeRequestsIdRoute,
   AuthenticatedTimetableChangeRequestsIndexRoute:

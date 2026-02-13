@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -8,11 +10,37 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Loader2, DoorOpen, GraduationCap, Users, Plus, Calendar, FileText, Bell } from 'lucide-react'
+import { roomsService } from '@/features/rooms/rooms-service'
+import { teachersService } from '@/features/teachers/teachers-service'
+import { studentsService } from '@/features/students/students-service'
 
 export function Dashboard() {
+  // Fetch counts with minimal data (size: 1 to get totalItems only)
+  const { data: roomsData, isLoading: roomsLoading } = useQuery({
+    queryKey: ['rooms', 'count'],
+    queryFn: () => roomsService.getAll({ page: 0, size: 1 }),
+  })
+
+  const { data: teachersData, isLoading: teachersLoading } = useQuery({
+    queryKey: ['teachers', 'count'],
+    queryFn: () => teachersService.getAll({ page: 0, size: 1 }),
+  })
+
+  const { data: studentsData, isLoading: studentsLoading } = useQuery({
+    queryKey: ['students', 'count'],
+    queryFn: () => studentsService.getAll({ page: 0, size: 1 }),
+  })
+
+  const totalRooms = roomsData?.totalItems ?? 0
+  const totalTeachers = teachersData?.totalItems ?? 0
+  const totalStudents = studentsData?.totalItems ?? 0
+
   return (
     <>
       <Header>
@@ -26,44 +54,141 @@ export function Dashboard() {
       </Header>
 
       <Main>
-        <div className='mb-2 flex items-center justify-between space-y-2'>
+        <div className='mb-6 flex items-center justify-between space-y-2'>
           <h1 className='text-2xl font-bold tracking-tight'>Dashboard</h1>
         </div>
-        <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+
+        {/* Statistics Cards */}
+        <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-sm font-medium'>Total Rooms</CardTitle>
+              <DoorOpen className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>24</div>
-              <p className='text-xs text-muted-foreground'>
-                Available rooms
-              </p>
+              {roomsLoading ? (
+                <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
+              ) : (
+                <>
+                  <div className='text-2xl font-bold'>{totalRooms}</div>
+                  <p className='text-xs text-muted-foreground'>
+                    Available rooms
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-sm font-medium'>Total Teachers</CardTitle>
+              <GraduationCap className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>32</div>
-              <p className='text-xs text-muted-foreground'>
-                Active teachers
-              </p>
+              {teachersLoading ? (
+                <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
+              ) : (
+                <>
+                  <div className='text-2xl font-bold'>{totalTeachers}</div>
+                  <p className='text-xs text-muted-foreground'>
+                    Active teachers
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-sm font-medium'>Total Students</CardTitle>
+              <Users className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>156</div>
-              <p className='text-xs text-muted-foreground'>
-                Enrolled students
-              </p>
+              {studentsLoading ? (
+                <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
+              ) : (
+                <>
+                  <div className='text-2xl font-bold'>{totalStudents}</div>
+                  <p className='text-xs text-muted-foreground'>
+                    Enrolled students
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>
+              Common tasks and shortcuts for managing the system
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+              <Link to='/admin/rooms/new' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <Plus className='mr-2 h-4 w-4' />
+                  Add New Room
+                </Button>
+              </Link>
+              <Link to='/admin/teachers/new' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <Plus className='mr-2 h-4 w-4' />
+                  Add New Teacher
+                </Button>
+              </Link>
+              <Link to='/admin/students/new' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <Plus className='mr-2 h-4 w-4' />
+                  Add New Student
+                </Button>
+              </Link>
+              <Link to='/admin/timetables/new' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <Plus className='mr-2 h-4 w-4' />
+                  Create Timetable
+                </Button>
+              </Link>
+              <Link to='/admin/rooms' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <DoorOpen className='mr-2 h-4 w-4' />
+                  View All Rooms
+                </Button>
+              </Link>
+              <Link to='/admin/teachers' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <GraduationCap className='mr-2 h-4 w-4' />
+                  View All Teachers
+                </Button>
+              </Link>
+              <Link to='/admin/students' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <Users className='mr-2 h-4 w-4' />
+                  View All Students
+                </Button>
+              </Link>
+              <Link to='/admin/timetables' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <Calendar className='mr-2 h-4 w-4' />
+                  View Timetables
+                </Button>
+              </Link>
+              <Link to='/admin/subjects' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <FileText className='mr-2 h-4 w-4' />
+                  Manage Subjects
+                </Button>
+              </Link>
+              <Link to='/admin/timetable-change-requests' className='block'>
+                <Button variant='outline' className='w-full justify-start'>
+                  <Bell className='mr-2 h-4 w-4' />
+                  Change Requests
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </Main>
     </>
   )

@@ -6,7 +6,8 @@ import { useNavigate } from '@tanstack/react-router'
 import { Loader2, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
-import { sleep, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { authService } from '@/features/auth/auth-service'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -26,7 +27,7 @@ const formSchema = z.object({
   password: z
     .string()
     .min(1, 'Please enter your password')
-    .min(7, 'Password must be at least 7 characters long'),
+    .min(6, 'Password must be at least 6 characters long'),
 })
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLFormElement> {
@@ -45,49 +46,51 @@ export function UserAuthForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: 'admin@utimea.com',
-      password: 'admin123',
+      email: '',
+      password: '',
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    // Check for default credentials
-    const isDefaultCredentials = 
-      data.email === 'admin@utimea.com' && data.password === 'admin123'
+    try {
+      const response = await authService.login({
+        email: data.email,
+        password: data.password,
+      })
 
-    if (!isDefaultCredentials) {
-      setIsLoading(false)
-      toast.error('Invalid credentials. Use admin@utimea.com / admin123')
-      return
-    }
+      // Set user and access token
+      auth.setUser({
+        email: response.email,
+        role: response.role,
+        userId: response.userId,
+      })
+      auth.setAccessToken(response.token)
 
-    toast.promise(sleep(1000), {
-      loading: 'Signing in...',
-      success: () => {
-        setIsLoading(false)
-
-        // Mock successful authentication with expiry computed at success time
-        const mockUser = {
-          accountNo: 'ACC001',
-          email: data.email,
-          role: ['admin'],
-          exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours from now
+      // Determine redirect path based on role
+      let targetPath = redirectTo
+      if (!targetPath) {
+        const role = response.role.toLowerCase()
+        if (role === 'admin') {
+          targetPath = '/admin/dashboard'
+        } else if (role === 'teacher') {
+          targetPath = '/teachers/welcome'
+        } else if (role === 'student') {
+          targetPath = '/students/welcome'
+        } else {
+          targetPath = '/'
         }
+      }
 
-        // Set user and access token
-        auth.setUser(mockUser)
-        auth.setAccessToken('mock-access-token')
-
-        // Redirect to the stored location or default to dashboard
-        const targetPath = redirectTo || '/_authenticated/'
-        navigate({ to: targetPath, replace: true })
-
-        return `Welcome back, ${data.email}!`
-      },
-      error: 'Error signing in',
-    })
+      navigate({ to: targetPath as any, replace: true })
+      toast.success(`Welcome back, ${data.email}!`)
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Invalid email or password'
+      toast.error(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

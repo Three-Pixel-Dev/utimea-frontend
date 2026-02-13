@@ -8,7 +8,7 @@ import {
   SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { sidebarData } from './data/sidebar-data'
+import { getSidebarData } from './data/sidebar-data'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
 import { useAuthStore } from '@/stores/auth-store'
@@ -18,10 +18,12 @@ export function AppSidebar() {
   const { state, isMobile, openMobile } = useSidebar()
   const { auth } = useAuthStore()
   
+  const sidebarData = getSidebarData(auth.user?.role)
+  
   // Use auth store user data if available, otherwise fall back to sidebar data
   const user = auth.user 
     ? { 
-        name: 'Admin', 
+        name: auth.user.role.charAt(0).toUpperCase() + auth.user.role.slice(1), 
         email: auth.user.email,
         avatar: sidebarData.user.avatar
       }
@@ -45,7 +47,9 @@ export function AppSidebar() {
           {shouldShowText && (
             <div className='flex flex-col min-w-0'>
               <span className='font-semibold text-sm whitespace-nowrap'>Utimea</span>
-              <span className='text-xs text-muted-foreground whitespace-nowrap'>Admin Dashboard</span>
+              <span className='text-xs text-muted-foreground whitespace-nowrap'>
+                {auth.user?.role ? `${auth.user.role.charAt(0).toUpperCase() + auth.user.role.slice(1)} Portal` : 'Admin Dashboard'}
+              </span>
             </div>
           )}
         </Link>

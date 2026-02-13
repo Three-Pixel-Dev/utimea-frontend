@@ -13,11 +13,23 @@ export const Route = createFileRoute('/_authenticated')({
         },
       })
     }
-    // Redirect to index if accessing the layout route directly
-    if (location.pathname === '/_authenticated') {
-      throw redirect({
-        to: '/_authenticated/' as any,
-      })
+    
+    // Role-based redirect for root authenticated route
+    if (location.pathname === '/_authenticated' || location.pathname === '/_authenticated/') {
+      const role = auth.user?.role.toLowerCase()
+      if (role === 'admin') {
+        throw redirect({
+          to: '/admin/dashboard' as any,
+        })
+      } else if (role === 'teacher') {
+        throw redirect({
+          to: '/teachers/welcome' as any,
+        })
+      } else if (role === 'student') {
+        throw redirect({
+          to: '/students/welcome' as any,
+        })
+      }
     }
   },
   component: AuthenticatedLayout,
