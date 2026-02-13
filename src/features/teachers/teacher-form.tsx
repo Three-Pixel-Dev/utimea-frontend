@@ -29,6 +29,7 @@ import { codesService } from '@/features/codes/codes-service'
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   phoneNumber: z.string().optional(),
+  email: z.string().email('Invalid email format').optional().or(z.literal('')),
   degree: z.string().optional(),
   departmentId: z.string().optional(),
 })
@@ -57,6 +58,7 @@ export function TeacherForm({ teacher, mode }: TeacherFormProps) {
     defaultValues: {
       name: '',
       phoneNumber: '',
+      email: '',
       degree: '',
       departmentId: '',
     },
@@ -70,6 +72,7 @@ export function TeacherForm({ teacher, mode }: TeacherFormProps) {
       form.reset({
         name: teacher.name || '',
         phoneNumber: teacher.phoneNumber || '',
+        email: teacher.email || '',
         degree: teacher.degree || '',
         departmentId: departmentId,
       })
@@ -84,6 +87,7 @@ export function TeacherForm({ teacher, mode }: TeacherFormProps) {
       const requestData = {
         name: data.name,
         phoneNumber: data.phoneNumber || null,
+        email: data.email || null,
         degree: data.degree || null,
         departmentId: data.departmentId ? Number(data.departmentId) : null,
       }
@@ -127,6 +131,19 @@ export function TeacherForm({ teacher, mode }: TeacherFormProps) {
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
                 <Input placeholder='+1234567890' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='email'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input type='email' placeholder='teacher@example.com' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

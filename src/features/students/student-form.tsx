@@ -30,6 +30,7 @@ import { majorSectionsService } from '@/features/major-sections/major-sections-s
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   phoneNumber: z.string().optional(),
+  email: z.string().email('Invalid email format').optional().or(z.literal('')),
   batchId: z.string().optional(),
   majorSectionId: z.string().optional(),
 })
@@ -65,6 +66,7 @@ export function StudentForm({ student, mode }: StudentFormProps) {
     defaultValues: {
       name: '',
       phoneNumber: '',
+      email: '',
       batchId: '',
       majorSectionId: '',
     },
@@ -78,6 +80,7 @@ export function StudentForm({ student, mode }: StudentFormProps) {
       form.reset({
         name: student.name || '',
         phoneNumber: student.phoneNumber || '',
+        email: student.email || '',
         batchId: batchId,
         majorSectionId: majorSectionId,
       })
@@ -92,6 +95,7 @@ export function StudentForm({ student, mode }: StudentFormProps) {
       const requestData = {
         name: data.name,
         phoneNumber: data.phoneNumber || null,
+        email: data.email || null,
         batchId: data.batchId ? Number(data.batchId) : null,
         majorSectionId: data.majorSectionId ? Number(data.majorSectionId) : null,
       }
@@ -135,6 +139,19 @@ export function StudentForm({ student, mode }: StudentFormProps) {
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
                 <Input placeholder='+1234567890' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='email'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input type='email' placeholder='student@example.com' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

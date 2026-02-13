@@ -4,6 +4,7 @@ export type Teacher = {
   id: number
   name: string
   phoneNumber: string | null
+  email: string | null
   degree: string | null
   department: {
     id: number
@@ -21,6 +22,7 @@ export type Teacher = {
 export type TeacherRequest = {
   name: string
   phoneNumber?: string | null
+  email?: string | null
   degree?: string | null
   departmentId?: number | null
 }

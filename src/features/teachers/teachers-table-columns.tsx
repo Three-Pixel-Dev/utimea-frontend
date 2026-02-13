@@ -63,6 +63,14 @@ export const teachersTableColumns: ColumnDef<Teacher>[] = [
     enableHiding: true,
   },
   {
+    accessorKey: 'email',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Email' />
+    ),
+    enableSorting: true,
+    enableHiding: true,
+  },
+  {
     accessorKey: 'degree',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Degree' />

@@ -4,6 +4,7 @@ export type Student = {
   id: number
   name: string
   phoneNumber: string | null
+  email: string | null
   batch: {
     id: number
     name: string
@@ -24,6 +25,7 @@ export type Student = {
 export type StudentRequest = {
   name: string
   phoneNumber?: string | null
+  email?: string | null
   batchId?: number | null
   majorSectionId?: number | null
 }
