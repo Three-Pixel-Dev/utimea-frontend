@@ -16,30 +16,18 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Loader2, DoorOpen, GraduationCap, Users, Plus, Calendar, FileText, Bell } from 'lucide-react'
-import { roomsService } from '@/features/rooms/rooms-service'
-import { teachersService } from '@/features/teachers/teachers-service'
-import { studentsService } from '@/features/students/students-service'
+import { dashboardService } from '@/features/dashboard/dashboard-service'
 
 export function Dashboard() {
-  // Fetch counts with minimal data (size: 1 to get totalItems only)
-  const { data: roomsData, isLoading: roomsLoading } = useQuery({
-    queryKey: ['rooms', 'count'],
-    queryFn: () => roomsService.getAll({ page: 0, size: 1 }),
+  // Fetch dashboard counts from API
+  const { data: counts, isLoading } = useQuery({
+    queryKey: ['dashboard', 'counts'],
+    queryFn: () => dashboardService.getCounts(),
   })
 
-  const { data: teachersData, isLoading: teachersLoading } = useQuery({
-    queryKey: ['teachers', 'count'],
-    queryFn: () => teachersService.getAll({ page: 0, size: 1 }),
-  })
-
-  const { data: studentsData, isLoading: studentsLoading } = useQuery({
-    queryKey: ['students', 'count'],
-    queryFn: () => studentsService.getAll({ page: 0, size: 1 }),
-  })
-
-  const totalRooms = roomsData?.totalItems ?? 0
-  const totalTeachers = teachersData?.totalItems ?? 0
-  const totalStudents = studentsData?.totalItems ?? 0
+  const totalRooms = counts?.totalRooms ?? 0
+  const totalTeachers = counts?.totalTeachers ?? 0
+  const totalStudents = counts?.totalStudents ?? 0
 
   return (
     <>
@@ -66,7 +54,7 @@ export function Dashboard() {
               <DoorOpen className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              {roomsLoading ? (
+              {isLoading ? (
                 <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
               ) : (
                 <>
@@ -84,7 +72,7 @@ export function Dashboard() {
               <GraduationCap className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              {teachersLoading ? (
+              {isLoading ? (
                 <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
               ) : (
                 <>
@@ -102,7 +90,7 @@ export function Dashboard() {
               <Users className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              {studentsLoading ? (
+              {isLoading ? (
                 <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
               ) : (
                 <>
