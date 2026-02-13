@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -35,6 +35,7 @@ import { Timetable, timetablesService } from './timetables-service'
 import { codesService } from '@/features/codes/codes-service'
 import { subjectsService } from '@/features/subjects/subjects-service'
 import { roomsService } from '@/features/rooms/rooms-service'
+import { GraduationCap } from 'lucide-react'
 
 const formSchema = z.object({
   majorSectionId: z.string().min(1, 'Major Section is required'),
@@ -43,6 +44,8 @@ const formSchema = z.object({
   timetablePeriodId: z.string().min(1, 'Timetable Period is required'),
   subjectId: z.string().min(1, 'Subject is required'),
   roomId: z.string().min(1, 'Room is required'),
+  teacherId: z.string().min(1, 'Teacher is required'),
+  subjectTypeId: z.string().optional(),
 })
 
 type TimetableCellFormProps = {
@@ -70,18 +73,19 @@ export function TimetableCellForm({
   const [isDeleting, setIsDeleting] = useState(false)
   const queryClient = useQueryClient()
   const mode = timetable ? 'edit' : 'create'
+  const hasInitialized = useRef(false)
 
-  const { data: timetableDays = [] } = useQuery({
+  const { data: timetableDays = [], isLoading: isLoadingDays } = useQuery({
     queryKey: ['timetableDays'],
     queryFn: () => codesService.getCodeValuesByConstantValue('TIMETABLE_DAYS'),
   })
 
-  const { data: timetablePeriods = [] } = useQuery({
+  const { data: timetablePeriods = [], isLoading: isLoadingPeriods } = useQuery({
     queryKey: ['timetablePeriods'],
     queryFn: () => codesService.getCodeValuesByConstantValue('TIMETABLE_PERIODS'),
   })
 
-  const { data: subjects = [] } = useQuery({
+  const { data: subjects = [], isLoading: isLoadingSubjects } = useQuery({
     queryKey: ['subjects'],
     queryFn: async () => {
       const response = await subjectsService.getAll({ page: 0, size: 1000 })
@@ -89,13 +93,15 @@ export function TimetableCellForm({
     },
   })
 
-  const { data: rooms = [] } = useQuery({
+  const { data: rooms = [], isLoading: isLoadingRooms } = useQuery({
     queryKey: ['rooms'],
     queryFn: async () => {
       const response = await roomsService.getAll({ page: 0, size: 1000 })
       return response.content
     },
   })
+
+  const isDataLoading = isLoadingDays || isLoadingPeriods || isLoadingSubjects || isLoadingRooms
 
   type FormData = z.infer<typeof formSchema>
 
@@ -108,17 +114,35 @@ export function TimetableCellForm({
       timetablePeriodId: '',
       subjectId: '',
       roomId: '',
+      teacherId: '',
+      subjectTypeId: '',
     },
   })
 
   useEffect(() => {
-    if (timetable && open && timetableDays.length > 0 && timetablePeriods.length > 0) {
+    // Reset initialization flag when dialog closes
+    if (!open) {
+      hasInitialized.current = false
+      return
+    }
+
+    // Prevent multiple initializations
+    if (hasInitialized.current) {
+      return
+    }
+
+    if (timetable && open && timetableDays.length > 0 && timetablePeriods.length > 0 && subjects.length > 0) {
       // Match by name to find the correct code value IDs
       const dayName = timetable.timetableData.timetableDay.name.toLowerCase().trim()
       const periodName = timetable.timetableData.timetablePeriod.name.toLowerCase().trim()
       
       const matchedDay = timetableDays.find(d => d.codeValue.toLowerCase().trim() === dayName)
       const matchedPeriod = timetablePeriods.find(p => p.codeValue.toLowerCase().trim() === periodName)
+      
+      const selectedSubject = subjects.find(s => s.id === timetable.timetableData.subject.id)
+      const matchedType = timetable.timetableData.subjectType && selectedSubject?.subjectTypes
+        ? selectedSubject.subjectTypes.find(st => st.name === timetable.timetableData.subjectType)
+        : null
       
       form.reset({
         majorSectionId: String(timetable.timetableInfo.majorSection.id),
@@ -127,7 +151,10 @@ export function TimetableCellForm({
         timetablePeriodId: matchedPeriod ? String(matchedPeriod.id) : String(timetable.timetableData.timetablePeriod.id),
         subjectId: String(timetable.timetableData.subject.id),
         roomId: String(timetable.timetableData.room.id),
+        teacherId: timetable.timetableData.teacher ? String(timetable.timetableData.teacher.id) : '',
+        subjectTypeId: matchedType ? String(matchedType.id) : '',
       })
+      hasInitialized.current = true
     } else if (open && timetableDays.length > 0 && timetablePeriods.length > 0) {
       // Try to match by ID first, then fall back to first item
       const matchedDay = timetableDays.find(d => d.id === dayId) || timetableDays.find((_, idx) => idx === 0)
@@ -140,9 +167,12 @@ export function TimetableCellForm({
         timetablePeriodId: matchedPeriod ? String(matchedPeriod.id) : '',
         subjectId: '',
         roomId: '',
+        teacherId: '',
+        subjectTypeId: '',
       })
+      hasInitialized.current = true
     }
-  }, [timetable, open, dayId, periodId, majorSectionId, academicYearId, form, timetableDays, timetablePeriods])
+  }, [timetable, open, dayId, periodId, majorSectionId, academicYearId, timetableDays, timetablePeriods, subjects])
 
   async function onSubmit(data: FormData) {
     setIsLoading(true)
@@ -155,6 +185,8 @@ export function TimetableCellForm({
         timetablePeriodId: Number(data.timetablePeriodId),
         subjectId: Number(data.subjectId),
         roomId: Number(data.roomId),
+        teacherId: Number(data.teacherId),
+        subjectTypeId: data.subjectTypeId ? Number(data.subjectTypeId) : null,
       }
 
       if (mode === 'create') {
@@ -240,25 +272,37 @@ export function TimetableCellForm({
                         <FormLabel className='flex items-center gap-2 text-sm font-medium'>
                           <Calendar className='h-4 w-4' />
                           Day
+                          {isLoadingDays && <Loader2 className='h-3 w-3 animate-spin text-muted-foreground' />}
                         </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          disabled={true}
-                        >
-                          <FormControl>
-                            <SelectTrigger className='h-12 text-base bg-muted/50'>
-                              <SelectValue placeholder='Select timetable day' />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {timetableDays.map((day) => (
-                              <SelectItem key={day.id} value={String(day.id)}>
-                                {day.codeValue}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className='relative'>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={true || isLoadingDays}
+                          >
+                            <FormControl>
+                              <SelectTrigger className='h-12 text-base bg-muted/50'>
+                                <SelectValue placeholder={isLoadingDays ? 'Loading days...' : 'Select timetable day'} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {isLoadingDays ? (
+                                <SelectItem value='loading' disabled>
+                                  <div className='flex items-center gap-2'>
+                                    <Loader2 className='h-4 w-4 animate-spin' />
+                                    Loading days...
+                                  </div>
+                                </SelectItem>
+                              ) : (
+                                timetableDays.map((day) => (
+                                  <SelectItem key={day.id} value={String(day.id)}>
+                                    {day.codeValue}
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -272,25 +316,37 @@ export function TimetableCellForm({
                         <FormLabel className='flex items-center gap-2 text-sm font-medium'>
                           <Clock className='h-4 w-4' />
                           Period
+                          {isLoadingPeriods && <Loader2 className='h-3 w-3 animate-spin text-muted-foreground' />}
                         </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          disabled={true}
-                        >
-                          <FormControl>
-                            <SelectTrigger className='h-12 text-base bg-muted/50'>
-                              <SelectValue placeholder='Select timetable period' />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {timetablePeriods.map((period) => (
-                              <SelectItem key={period.id} value={String(period.id)}>
-                                {period.codeValue}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className='relative'>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={true || isLoadingPeriods}
+                          >
+                            <FormControl>
+                              <SelectTrigger className='h-12 text-base bg-muted/50'>
+                                <SelectValue placeholder={isLoadingPeriods ? 'Loading periods...' : 'Select timetable period'} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {isLoadingPeriods ? (
+                                <SelectItem value='loading' disabled>
+                                  <div className='flex items-center gap-2'>
+                                    <Loader2 className='h-4 w-4 animate-spin' />
+                                    Loading periods...
+                                  </div>
+                                </SelectItem>
+                              ) : (
+                                timetablePeriods.map((period) => (
+                                  <SelectItem key={period.id} value={String(period.id)}>
+                                    {period.codeValue}
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -317,31 +373,49 @@ export function TimetableCellForm({
                         <FormLabel className='flex items-center gap-2 text-sm font-medium'>
                           <BookOpen className='h-4 w-4' />
                           Subject
+                          {isLoadingSubjects && <Loader2 className='h-3 w-3 animate-spin text-muted-foreground' />}
                         </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className='h-12 text-base justify-start'>
-                              <SelectValue placeholder='Select subject' />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {subjects.map((subject) => (
-                              <SelectItem key={subject.id} value={String(subject.id)} className='text-left'>
-                                <div className='flex flex-col items-start py-1'>
-                                  <span className='font-medium leading-tight text-left'>{subject.code}</span>
-                                  {subject.description && (
-                                    <span className='text-xs text-muted-foreground leading-tight mt-0.5 text-left'>
-                                      {subject.description}
-                                    </span>
-                                  )}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className='relative'>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value)
+                              // Reset teacher and subject type when subject changes
+                              form.setValue('teacherId', '')
+                              form.setValue('subjectTypeId', '')
+                            }}
+                            value={field.value}
+                            disabled={isLoadingSubjects}
+                          >
+                            <FormControl>
+                              <SelectTrigger className='h-12 text-base justify-start'>
+                                <SelectValue placeholder={isLoadingSubjects ? 'Loading subjects...' : 'Select subject'} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {isLoadingSubjects ? (
+                                <SelectItem value='loading' disabled>
+                                  <div className='flex items-center gap-2'>
+                                    <Loader2 className='h-4 w-4 animate-spin' />
+                                    Loading subjects...
+                                  </div>
+                                </SelectItem>
+                              ) : (
+                                subjects.map((subject) => (
+                                  <SelectItem key={subject.id} value={String(subject.id)} className='text-left'>
+                                    <div className='flex flex-col items-start py-1'>
+                                      <span className='font-medium leading-tight text-left'>{subject.code}</span>
+                                      {subject.description && (
+                                        <span className='text-xs text-muted-foreground leading-tight mt-0.5 text-left'>
+                                          {subject.description}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         <FormMessage />
                       </FormItem>
                       )
@@ -350,27 +424,44 @@ export function TimetableCellForm({
 
                   <FormField
                     control={form.control}
-                    name='subjectId'
+                    name='subjectTypeId'
                     render={({ field }) => {
-                      const selectedSubject = subjects.find(s => String(s.id) === field.value)
+                      const selectedSubject = subjects.find(s => String(s.id) === form.watch('subjectId'))
+                      const availableSubjectTypes = selectedSubject?.subjectTypes || []
                       return (
                         <FormItem className='space-y-2'>
                           <FormLabel className='flex items-center gap-2 text-sm font-medium'>
                             Subject Type
                           </FormLabel>
-                          <div className='h-12 flex items-center'>
-                            {selectedSubject?.subjectTypes && selectedSubject.subjectTypes.length > 0 ? (
-                              <div className='flex flex-wrap gap-1.5'>
-                                {selectedSubject.subjectTypes.map((type) => (
-                                  <Badge key={type.id} variant='secondary' className='text-xs'>
+                          <div className='relative'>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              disabled={!selectedSubject || availableSubjectTypes.length === 0}
+                            >
+                              <FormControl>
+                                <SelectTrigger className='h-12 text-base justify-start'>
+                                  <SelectValue 
+                                    placeholder={
+                                      !selectedSubject 
+                                        ? 'Select subject first' 
+                                        : availableSubjectTypes.length === 0 
+                                        ? 'No subject types' 
+                                        : 'Select subject type'
+                                    }
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {availableSubjectTypes.map((type) => (
+                                  <SelectItem key={type.id} value={String(type.id)} className='text-left'>
                                     {type.name}
-                                  </Badge>
+                                  </SelectItem>
                                 ))}
-                              </div>
-                            ) : (
-                              <span className='text-sm text-muted-foreground'>No subject types</span>
-                            )}
+                              </SelectContent>
+                            </Select>
                           </div>
+                          <FormMessage />
                         </FormItem>
                       )
                     }}
@@ -386,31 +477,44 @@ export function TimetableCellForm({
                         <FormLabel className='flex items-center gap-2 text-sm font-medium'>
                           <DoorOpen className='h-4 w-4' />
                           Room
+                          {isLoadingRooms && <Loader2 className='h-3 w-3 animate-spin text-muted-foreground' />}
                         </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className='h-12 text-base justify-start'>
-                              <SelectValue placeholder='Select room' />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {rooms.map((room) => (
-                              <SelectItem key={room.id} value={String(room.id)} className='text-left'>
-                                <div className='flex items-center justify-between w-full gap-2'>
-                                  <span className='flex-1 text-left'>{room.name}</span>
-                                  {room.capacity && (
-                                    <Badge variant='secondary' className='text-xs shrink-0'>
-                                      {room.capacity} seats
-                                    </Badge>
-                                  )}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className='relative'>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={isLoadingRooms}
+                          >
+                            <FormControl>
+                              <SelectTrigger className='h-12 text-base justify-start'>
+                                <SelectValue placeholder={isLoadingRooms ? 'Loading rooms...' : 'Select room'} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {isLoadingRooms ? (
+                                <SelectItem value='loading' disabled>
+                                  <div className='flex items-center gap-2'>
+                                    <Loader2 className='h-4 w-4 animate-spin' />
+                                    Loading rooms...
+                                  </div>
+                                </SelectItem>
+                              ) : (
+                                rooms.map((room) => (
+                                  <SelectItem key={room.id} value={String(room.id)} className='text-left'>
+                                    <div className='flex items-center justify-between w-full gap-2'>
+                                      <span className='flex-1 text-left'>{room.name}</span>
+                                      {room.capacity && (
+                                        <Badge variant='secondary' className='text-xs shrink-0'>
+                                          {room.capacity} seats
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -434,6 +538,74 @@ export function TimetableCellForm({
                     </div>
                   </div>
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name='teacherId'
+                  render={({ field }) => {
+                    const selectedSubject = subjects.find(s => String(s.id) === form.watch('subjectId'))
+                    const availableTeachers = selectedSubject?.teachers || []
+                    return (
+                      <FormItem className='space-y-2'>
+                        <FormLabel className='flex items-center gap-2 text-sm font-medium'>
+                          <GraduationCap className='h-4 w-4' />
+                          Teacher
+                          {isLoadingSubjects && <Loader2 className='h-3 w-3 animate-spin text-muted-foreground' />}
+                        </FormLabel>
+                        <div className='relative'>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={isLoadingSubjects || !selectedSubject || availableTeachers.length === 0}
+                          >
+                            <FormControl>
+                              <SelectTrigger className='h-12 text-base justify-start'>
+                                <SelectValue 
+                                  placeholder={
+                                    isLoadingSubjects 
+                                      ? 'Loading...' 
+                                      : !selectedSubject 
+                                      ? 'Select subject first' 
+                                      : availableTeachers.length === 0 
+                                      ? 'No teachers available' 
+                                      : 'Select teacher'
+                                  }
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {isLoadingSubjects ? (
+                                <SelectItem value='loading' disabled>
+                                  <div className='flex items-center gap-2'>
+                                    <Loader2 className='h-4 w-4 animate-spin' />
+                                    Loading teachers...
+                                  </div>
+                                </SelectItem>
+                              ) : (
+                                availableTeachers.map((teacher) => (
+                                  <SelectItem key={teacher.id} value={String(teacher.id)} className='text-left'>
+                                    <div className='flex flex-col items-start py-1'>
+                                      <span className='font-medium leading-tight text-left'>{teacher.name}</span>
+                                      {teacher.degree && (
+                                        <span className='text-xs text-muted-foreground leading-tight mt-0.5 text-left'>
+                                          {teacher.degree}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <FormMessage />
+                        {selectedSubject && availableTeachers.length === 0 && (
+                          <p className='text-xs text-muted-foreground'>No teachers assigned to this subject</p>
+                        )}
+                      </FormItem>
+                    )
+                  }}
+                />
               </div>
             </div>
 

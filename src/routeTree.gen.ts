@@ -19,8 +19,10 @@ import { Route as AuthenticatedRoomsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedMajorSectionsRouteImport } from './routes/_authenticated/major-sections'
 import { Route as AuthenticatedCodesRouteImport } from './routes/_authenticated/codes'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as AuthenticatedTimetableChangeRequestsIndexRouteImport } from './routes/_authenticated/timetable-change-requests/index'
 import { Route as AuthenticatedTimetablesNewRouteImport } from './routes/_authenticated/timetables/new'
 import { Route as AuthenticatedTimetablesCombineRouteImport } from './routes/_authenticated/timetables/combine'
+import { Route as AuthenticatedTimetableChangeRequestsIdRouteImport } from './routes/_authenticated/timetable-change-requests/$id'
 import { Route as AuthenticatedTeachersNewRouteImport } from './routes/_authenticated/teachers/new'
 import { Route as AuthenticatedSubjectsNewRouteImport } from './routes/_authenticated/subjects/new'
 import { Route as AuthenticatedStudentsNewRouteImport } from './routes/_authenticated/students/new'
@@ -92,6 +94,12 @@ const authSignInRoute = authSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTimetableChangeRequestsIndexRoute =
+  AuthenticatedTimetableChangeRequestsIndexRouteImport.update({
+    id: '/timetable-change-requests/',
+    path: '/timetable-change-requests/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTimetablesNewRoute =
   AuthenticatedTimetablesNewRouteImport.update({
     id: '/new',
@@ -103,6 +111,12 @@ const AuthenticatedTimetablesCombineRoute =
     id: '/combine',
     path: '/combine',
     getParentRoute: () => AuthenticatedTimetablesRoute,
+  } as any)
+const AuthenticatedTimetableChangeRequestsIdRoute =
+  AuthenticatedTimetableChangeRequestsIdRouteImport.update({
+    id: '/timetable-change-requests/$id',
+    path: '/timetable-change-requests/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTeachersNewRoute =
   AuthenticatedTeachersNewRouteImport.update({
@@ -239,8 +253,10 @@ export interface FileRoutesByFullPath {
   '/students/new': typeof AuthenticatedStudentsNewRoute
   '/subjects/new': typeof AuthenticatedSubjectsNewRoute
   '/teachers/new': typeof AuthenticatedTeachersNewRoute
+  '/timetable-change-requests/$id': typeof AuthenticatedTimetableChangeRequestsIdRoute
   '/timetables/combine': typeof AuthenticatedTimetablesCombineRoute
   '/timetables/new': typeof AuthenticatedTimetablesNewRoute
+  '/timetable-change-requests/': typeof AuthenticatedTimetableChangeRequestsIndexRoute
   '/codes/$id/values': typeof AuthenticatedCodesIdValuesRouteWithChildren
   '/codes/edit/$id': typeof AuthenticatedCodesEditIdRoute
   '/major-sections/edit/$id': typeof AuthenticatedMajorSectionsEditIdRoute
@@ -272,8 +288,10 @@ export interface FileRoutesByTo {
   '/students/new': typeof AuthenticatedStudentsNewRoute
   '/subjects/new': typeof AuthenticatedSubjectsNewRoute
   '/teachers/new': typeof AuthenticatedTeachersNewRoute
+  '/timetable-change-requests/$id': typeof AuthenticatedTimetableChangeRequestsIdRoute
   '/timetables/combine': typeof AuthenticatedTimetablesCombineRoute
   '/timetables/new': typeof AuthenticatedTimetablesNewRoute
+  '/timetable-change-requests': typeof AuthenticatedTimetableChangeRequestsIndexRoute
   '/codes/$id/values': typeof AuthenticatedCodesIdValuesRouteWithChildren
   '/codes/edit/$id': typeof AuthenticatedCodesEditIdRoute
   '/major-sections/edit/$id': typeof AuthenticatedMajorSectionsEditIdRoute
@@ -307,8 +325,10 @@ export interface FileRoutesById {
   '/_authenticated/students/new': typeof AuthenticatedStudentsNewRoute
   '/_authenticated/subjects/new': typeof AuthenticatedSubjectsNewRoute
   '/_authenticated/teachers/new': typeof AuthenticatedTeachersNewRoute
+  '/_authenticated/timetable-change-requests/$id': typeof AuthenticatedTimetableChangeRequestsIdRoute
   '/_authenticated/timetables/combine': typeof AuthenticatedTimetablesCombineRoute
   '/_authenticated/timetables/new': typeof AuthenticatedTimetablesNewRoute
+  '/_authenticated/timetable-change-requests/': typeof AuthenticatedTimetableChangeRequestsIndexRoute
   '/_authenticated/codes/$id/values': typeof AuthenticatedCodesIdValuesRouteWithChildren
   '/_authenticated/codes/edit/$id': typeof AuthenticatedCodesEditIdRoute
   '/_authenticated/major-sections/edit/$id': typeof AuthenticatedMajorSectionsEditIdRoute
@@ -342,8 +362,10 @@ export interface FileRouteTypes {
     | '/students/new'
     | '/subjects/new'
     | '/teachers/new'
+    | '/timetable-change-requests/$id'
     | '/timetables/combine'
     | '/timetables/new'
+    | '/timetable-change-requests/'
     | '/codes/$id/values'
     | '/codes/edit/$id'
     | '/major-sections/edit/$id'
@@ -375,8 +397,10 @@ export interface FileRouteTypes {
     | '/students/new'
     | '/subjects/new'
     | '/teachers/new'
+    | '/timetable-change-requests/$id'
     | '/timetables/combine'
     | '/timetables/new'
+    | '/timetable-change-requests'
     | '/codes/$id/values'
     | '/codes/edit/$id'
     | '/major-sections/edit/$id'
@@ -409,8 +433,10 @@ export interface FileRouteTypes {
     | '/_authenticated/students/new'
     | '/_authenticated/subjects/new'
     | '/_authenticated/teachers/new'
+    | '/_authenticated/timetable-change-requests/$id'
     | '/_authenticated/timetables/combine'
     | '/_authenticated/timetables/new'
+    | '/_authenticated/timetable-change-requests/'
     | '/_authenticated/codes/$id/values'
     | '/_authenticated/codes/edit/$id'
     | '/_authenticated/major-sections/edit/$id'
@@ -503,6 +529,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/timetable-change-requests/': {
+      id: '/_authenticated/timetable-change-requests/'
+      path: '/timetable-change-requests'
+      fullPath: '/timetable-change-requests/'
+      preLoaderRoute: typeof AuthenticatedTimetableChangeRequestsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/timetables/new': {
       id: '/_authenticated/timetables/new'
       path: '/new'
@@ -516,6 +549,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/timetables/combine'
       preLoaderRoute: typeof AuthenticatedTimetablesCombineRouteImport
       parentRoute: typeof AuthenticatedTimetablesRoute
+    }
+    '/_authenticated/timetable-change-requests/$id': {
+      id: '/_authenticated/timetable-change-requests/$id'
+      path: '/timetable-change-requests/$id'
+      fullPath: '/timetable-change-requests/$id'
+      preLoaderRoute: typeof AuthenticatedTimetableChangeRequestsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/teachers/new': {
       id: '/_authenticated/teachers/new'
@@ -811,6 +851,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeachersRoute: typeof AuthenticatedTeachersRouteWithChildren
   AuthenticatedTimetablesRoute: typeof AuthenticatedTimetablesRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedTimetableChangeRequestsIdRoute: typeof AuthenticatedTimetableChangeRequestsIdRoute
+  AuthenticatedTimetableChangeRequestsIndexRoute: typeof AuthenticatedTimetableChangeRequestsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -822,6 +864,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeachersRoute: AuthenticatedTeachersRouteWithChildren,
   AuthenticatedTimetablesRoute: AuthenticatedTimetablesRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedTimetableChangeRequestsIdRoute:
+    AuthenticatedTimetableChangeRequestsIdRoute,
+  AuthenticatedTimetableChangeRequestsIndexRoute:
+    AuthenticatedTimetableChangeRequestsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

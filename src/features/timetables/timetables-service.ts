@@ -89,6 +89,8 @@ export type TimetableRequest = {
   timetablePeriodId: number
   subjectId: number
   roomId: number
+  teacherId: number
+  subjectTypeId: number | null
 }
 
 export type TimetableFilter = {

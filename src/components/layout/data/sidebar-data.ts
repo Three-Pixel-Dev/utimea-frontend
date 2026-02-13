@@ -7,6 +7,7 @@ import {
   BookOpen,
   FileText,
   Calendar,
+  Bell,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -55,6 +56,11 @@ export const sidebarData: SidebarData = {
           title: 'View Timetable',
           url: '/timetables',
           icon: Calendar,
+        },
+        {
+          title: 'Change Requests',
+          url: '/timetable-change-requests',
+          icon: Bell,
         },
         {
           title: 'View System Data',
