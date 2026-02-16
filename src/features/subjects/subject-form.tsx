@@ -37,11 +37,11 @@ import { codesService } from '@/features/codes/codes-service'
 import { teachersService } from '@/features/teachers/teachers-service'
 
 const formSchema = z.object({
-  code: z.string().min(1, 'Code is required'),
-  description: z.string().optional(),
-  subjectTypeIds: z.array(z.string()).optional(),
-  roomTypeId: z.string().optional(),
-  teacherIds: z.array(z.string()).optional(),
+  code: z.string().trim().min(1, 'Code is required'),
+  description: z.string().trim().min(1, 'Description is required'),
+  subjectTypeIds: z.array(z.string()).min(1, 'At least one Subject Type is required'),
+  roomTypeId: z.string().min(1, 'Room Type is required'),
+  teacherIds: z.array(z.string()).min(1, 'At least one Teacher is required'),
 })
 
 type SubjectFormProps = {
@@ -99,8 +99,8 @@ export function SubjectForm({ subject, mode }: SubjectFormProps) {
 
     try {
       const requestData = {
-        code: data.code,
-        description: data.description || null,
+        code: data.code.trim(),
+        description: data.description ? data.description.trim() : null,
         subjectTypeIds: data.subjectTypeIds && data.subjectTypeIds.length > 0
           ? data.subjectTypeIds.map((id) => Number(id))
           : null,

@@ -27,23 +27,7 @@ export function createCodeValuesTableColumns({
         <DataTableColumnHeader column={column} title='Name' />
       ),
       enableSorting: true,
-    },
-    {
-      accessorKey: 'active',
-      header: 'Active',
-      cell: ({ row }) => (
-        <Checkbox checked={row.original.active} disabled />
-      ),
-    },
-    {
-      accessorKey: 'systemDefined',
-      header: 'System Defined',
-      cell: ({ row }) => (
-        <Checkbox checked={row.original.systemDefined ?? true} disabled />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    },    
     {
       id: 'actions',
       header: () => <div className='text-right'>Actions</div>,

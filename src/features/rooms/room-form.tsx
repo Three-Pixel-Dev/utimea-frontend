@@ -27,7 +27,7 @@ import { Room, roomsService } from './rooms-service'
 import { codesService } from '@/features/codes/codes-service'
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().trim().min(1, 'Name is required'),
   capacity: z
     .string()
     .min(1, 'Capacity is required')
@@ -35,7 +35,7 @@ const formSchema = z.object({
       const num = Number(val)
       return !isNaN(num) && num >= 1
     }, 'Capacity must be at least 1'),
-  roomTypeId: z.string().optional(),
+  roomTypeId: z.string().min(1, 'Room Type is required'),
 })
 
 type RoomFormProps = {
@@ -80,7 +80,7 @@ export function RoomForm({ room, mode }: RoomFormProps) {
 
     try {
       const requestData = {
-        name: data.name,
+        name: data.name.trim(),
         capacity: data.capacity ? Number(data.capacity) : null,
         roomTypeId: data.roomTypeId ? Number(data.roomTypeId) : null,
       }

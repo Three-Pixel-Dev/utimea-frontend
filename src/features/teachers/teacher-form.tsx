@@ -27,11 +27,11 @@ import { Teacher, teachersService } from './teachers-service'
 import { codesService } from '@/features/codes/codes-service'
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  phoneNumber: z.string().optional(),
-  email: z.string().email('Invalid email format').optional().or(z.literal('')),
-  degree: z.string().optional(),
-  departmentId: z.string().optional(),
+  name: z.string().trim().min(1, 'Name is required'),
+  phoneNumber: z.string().trim().min(1, 'Phone number is required').regex(/^[0-9]+$/, 'Phone number must contain only digits'),
+  email: z.string().trim().min(1, 'Email is required').email('Invalid email format'),
+  degree: z.string().trim().min(1, 'Degree is required'),
+  departmentId: z.string().min(1, 'Department is required'),
 })
 
 type TeacherFormProps = {
@@ -85,10 +85,10 @@ export function TeacherForm({ teacher, mode }: TeacherFormProps) {
 
     try {
       const requestData = {
-        name: data.name,
-        phoneNumber: data.phoneNumber || null,
-        email: data.email || null,
-        degree: data.degree || null,
+        name: data.name.trim(),
+        phoneNumber: data.phoneNumber.trim(),
+        email: data.email.trim(),
+        degree: data.degree.trim(),
         departmentId: data.departmentId ? Number(data.departmentId) : null,
       }
 
@@ -176,7 +176,9 @@ export function TeacherForm({ teacher, mode }: TeacherFormProps) {
                 <FormLabel>Department</FormLabel>
                 <Select 
                   key={`department-${departmentValues.length}-${currentValue}-${teacher?.id || 'new'}`}
-                  onValueChange={field.onChange} 
+                  onValueChange={(value) => {
+                    field.onChange(value)
+                  }} 
                   value={validId || undefined}
                   disabled={departmentValues.length === 0}
                 >

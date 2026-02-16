@@ -28,11 +28,11 @@ import { codesService } from '@/features/codes/codes-service'
 import { majorSectionsService } from '@/features/major-sections/major-sections-service'
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  phoneNumber: z.string().optional(),
-  email: z.string().email('Invalid email format').optional().or(z.literal('')),
-  batchId: z.string().optional(),
-  majorSectionId: z.string().optional(),
+  name: z.string().trim().min(1, 'Name is required'),
+  phoneNumber: z.string().trim().min(1, 'Phone number is required').regex(/^[0-9]+$/, 'Phone number must contain only digits'),
+  email: z.string().trim().min(1, 'Email is required').email('Invalid email format'),
+  batchId: z.string().min(1, 'Batch is required'),
+  majorSectionId: z.string().min(1, 'Major Section is required'),
 })
 
 type StudentFormProps = {
@@ -94,8 +94,8 @@ export function StudentForm({ student, mode }: StudentFormProps) {
     try {
       const requestData = {
         name: data.name,
-        phoneNumber: data.phoneNumber || null,
-        email: data.email || null,
+        phoneNumber: data.phoneNumber,
+        email: data.email,
         batchId: data.batchId ? Number(data.batchId) : null,
         majorSectionId: data.majorSectionId ? Number(data.majorSectionId) : null,
       }

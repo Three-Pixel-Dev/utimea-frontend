@@ -35,7 +35,7 @@ export const codesTableColumns: ColumnDef<Code>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Code Name' />
+      <DataTableColumnHeader column={column} title='System Data Name' />
     ),
     enableSorting: true,
     enableHiding: true,

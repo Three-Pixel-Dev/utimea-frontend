@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import type { PaginationState } from '@tanstack/react-table'
 import { AdminTableLayout } from '@/components/layout/admin-table-layout'
 import { Button } from '@/components/ui/button'
@@ -28,27 +28,30 @@ export function TimetableChangeRequests() {
     return JSON.stringify(filter)
   }, [filter])
 
-  const { data: paginationData, isLoading } = useQuery({
+  const { data: paginationData, isLoading, error } = useQuery({
     queryKey: ['timetable-change-requests', pagination.pageIndex, pagination.pageSize, filterKey],
     queryFn: () => timetableChangeRequestsService.getAll({
       page: pagination.pageIndex,
       size: pagination.pageSize,
       filter,
     }),
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    gcTime: 300000, // Keep unused data in cache for 5 minutes
   })
 
   const requests = paginationData?.content || []
 
-  const handleStatusChange = (value: string) => {
+  const handleStatusChange = useCallback((value: string) => {
+    const newStatus = value === 'ALL' ? undefined : (value as 'PENDING' | 'APPROVED' | 'DECLINED' | 'COMPLETED')
     setFilter((prevFilter) => ({
       ...prevFilter,
-      status: value === 'ALL' ? undefined : value as 'PENDING' | 'APPROVED' | 'DECLINED' | 'COMPLETED',
+      status: newStatus,
     }))
     setPagination((prevPagination) => ({
       ...prevPagination,
       pageIndex: 0,
     }))
-  }
+  }, [])
 
   return (
     <AdminTableLayout

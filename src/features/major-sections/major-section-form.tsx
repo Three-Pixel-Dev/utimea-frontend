@@ -27,7 +27,7 @@ import { MajorSection, majorSectionsService } from './major-sections-service'
 import { codesService } from '@/features/codes/codes-service'
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().trim().min(1, 'Name is required'),
   majorSectionYear: z.string().min(1, 'Major section year is required'),
 })
 
@@ -82,7 +82,7 @@ export function MajorSectionForm({ majorSection, mode }: MajorSectionFormProps) 
 
     try {
       const requestData = {
-        name: data.name,
+        name: data.name.trim(),
         majorSectionYearId: data.majorSectionYear ? Number(data.majorSectionYear) : null,
       }
 

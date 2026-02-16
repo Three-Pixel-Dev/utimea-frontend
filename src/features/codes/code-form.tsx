@@ -74,7 +74,7 @@ export function CodeForm({ code, mode }: CodeFormProps) {
           name='name'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Code Name</FormLabel>
+              <FormLabel>System Data Name</FormLabel>
               <FormControl>
                 <Input placeholder='Enter code name' {...field} />
               </FormControl>
