@@ -63,4 +63,8 @@ export const roomsService = {
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/api/rooms/${id}`)
   },
+
+  deleteMany: async (ids: number[]): Promise<void> => {
+    await apiClient.post('/api/rooms/bulk-delete', { ids })
+  },
 }

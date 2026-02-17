@@ -1,8 +1,9 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Eye, MoreVertical } from 'lucide-react'
+import { Eye, Trash2, MoreVertical } from 'lucide-react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/data-table/column-header'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Code } from './codes-service'
 
-function CodeActions({ code }: { code: Code }) {
+type CodeActionsProps = {
+  code: Code
+  onDelete: (id: number) => void
+}
+
+function CodeActions({ code, onDelete }: CodeActionsProps) {
   const navigate = useNavigate()
 
   return (
@@ -26,12 +32,46 @@ function CodeActions({ code }: { code: Code }) {
           <Eye className='mr-2 h-4 w-4' />
       View
         </DropdownMenuItem>
+        <DropdownMenuItem
+          variant='destructive'
+          onClick={() => onDelete(code.id)}
+        >
+          <Trash2 className='mr-2 h-4 w-4' />
+          Delete
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
-export const codesTableColumns: ColumnDef<Code>[] = [
+type CodesTableColumnsProps = {
+  onDelete: (id: number) => void
+}
+
+export function createCodesTableColumns({ onDelete }: CodesTableColumnsProps): ColumnDef<Code>[] {
+  return [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label='Select all'
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label='Select row'
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: 'name',
     header: ({ column }) => (
@@ -56,10 +96,13 @@ export const codesTableColumns: ColumnDef<Code>[] = [
     header: () => <div className='text-right'>Actions</div>,
     cell: ({ row }) => (
       <div className='text-right'>
-        <CodeActions code={row.original} />
+        <CodeActions code={row.original} onDelete={onDelete} />
       </div>
     ),
     enableHiding: false,
     enableSorting: false,
   },
 ]
+}
+
+export const codesTableColumns: ColumnDef<Code>[] = createCodesTableColumns({ onDelete: () => {} })

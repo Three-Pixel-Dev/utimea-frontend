@@ -1,8 +1,9 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Pencil, MoreVertical } from 'lucide-react'
+import { Pencil, Trash2, MoreVertical } from 'lucide-react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/data-table/column-header'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Student } from './students-service'
 
-function StudentActions({ id }: { id: number }) {
+type StudentActionsProps = {
+  id: number
+  onDelete: (id: number) => void
+}
+
+function StudentActions({ id, onDelete }: StudentActionsProps) {
   const navigate = useNavigate()
 
   return (
@@ -26,12 +32,46 @@ function StudentActions({ id }: { id: number }) {
           <Pencil className='mr-2 h-4 w-4' />
           Edit
         </DropdownMenuItem>
+        <DropdownMenuItem
+          variant='destructive'
+          onClick={() => onDelete(id)}
+        >
+          <Trash2 className='mr-2 h-4 w-4' />
+          Delete
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
-export const studentsTableColumns: ColumnDef<Student>[] = [
+type StudentsTableColumnsProps = {
+  onDelete: (id: number) => void
+}
+
+export function createStudentsTableColumns({ onDelete }: StudentsTableColumnsProps): ColumnDef<Student>[] {
+  return [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label='Select all'
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label='Select row'
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     id: 'index',
     header: '#',
@@ -95,10 +135,13 @@ export const studentsTableColumns: ColumnDef<Student>[] = [
     header: () => <div className='text-right'>Actions</div>,
     cell: ({ row }) => (
       <div className='text-right'>
-        <StudentActions id={row.original.id} />
+        <StudentActions id={row.original.id} onDelete={onDelete} />
       </div>
     ),
     enableHiding: false,
     enableSorting: false,
   },
 ]
+}
+
+export const studentsTableColumns: ColumnDef<Student>[] = createStudentsTableColumns({ onDelete: () => {} })

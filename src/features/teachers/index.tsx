@@ -1,21 +1,24 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import type { PaginationState } from '@tanstack/react-table'
-import { Download, Upload } from 'lucide-react'
+import type { PaginationState, RowSelectionState, Table as ReactTable } from '@tanstack/react-table'
+import { Download, Upload, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { AdminTableLayout } from '@/components/layout/admin-table-layout'
+import { DataTableBulkActions } from '@/components/data-table/bulk-actions'
 import { Button } from '@/components/ui/button'
 import { ExcelImportDialog } from '@/components/excel'
-import { teachersService } from './teachers-service'
-import { teachersTableColumns } from './teachers-table-columns'
+import { teachersService, Teacher } from './teachers-service'
+import { createTeachersTableColumns } from './teachers-table-columns'
 
 export function Teachers() {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   })
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const queryClient = useQueryClient()
+  const [table, setTable] = useState<ReactTable<Teacher> | null>(null)
 
   const { data: paginationData } = useQuery({
     queryKey: ['teachers', pagination.pageIndex, pagination.pageSize],
@@ -26,6 +29,51 @@ export function Teachers() {
   })
 
   const teachers = paginationData?.content || []
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this teacher?')) {
+      return
+    }
+
+    toast.promise(
+      teachersService.delete(id).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['teachers'] })
+      }),
+      {
+        loading: 'Deleting teacher...',
+        success: 'Teacher deleted successfully!',
+        error: 'Failed to delete teacher',
+      }
+    )
+  }
+
+  const handleBulkDelete = async () => {
+    if (!table) return
+    
+    const selectedRows = table.getFilteredSelectedRowModel().rows
+    const ids = selectedRows.map((row) => row.original.id)
+
+    if (ids.length === 0) {
+      return
+    }
+
+    if (!confirm(`Are you sure you want to delete ${ids.length} teacher(s)?`)) {
+      return
+    }
+
+    toast.promise(
+      teachersService.deleteMany(ids).then(() => {
+        setRowSelection({})
+        table.resetRowSelection()
+        queryClient.invalidateQueries({ queryKey: ['teachers'] })
+      }),
+      {
+        loading: `Deleting ${ids.length} teacher(s)...`,
+        success: `${ids.length} teacher(s) deleted successfully!`,
+        error: 'Failed to delete teachers',
+      }
+    )
+  }
 
   const handleDownloadTemplate = async () => {
     try {
@@ -136,6 +184,8 @@ export function Teachers() {
     }
   }
 
+  const columns = createTeachersTableColumns({ onDelete: handleDelete })
+
   return (
     <>
       <AdminTableLayout
@@ -143,7 +193,7 @@ export function Teachers() {
         description='View and manage all teachers in the system.'
         cardTitle='Teacher List'
         cardDescription='A list of all teachers'
-        columns={teachersTableColumns}
+        columns={columns}
         data={teachers}
         searchKey='name'
         searchPlaceholder='Search teachers...'
@@ -152,6 +202,11 @@ export function Teachers() {
         totalItems={paginationData?.totalItems}
         pagination={pagination}
         onPaginationChange={setPagination}
+        onTableReady={(tableInstance) => {
+          setTable(tableInstance as ReactTable<Teacher>)
+        }}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
         headerActions={
           <div className="flex items-center gap-2">
             <Button
@@ -181,6 +236,19 @@ export function Teachers() {
           </div>
         }
       />
+
+      {table && (
+        <DataTableBulkActions table={table} entityName='teacher'>
+          <Button
+            variant='destructive'
+            size='sm'
+            onClick={handleBulkDelete}
+          >
+            <Trash2 className='mr-2 h-4 w-4' />
+            Delete Selected
+          </Button>
+        </DataTableBulkActions>
+      )}
 
       <ExcelImportDialog
         open={isImportDialogOpen}

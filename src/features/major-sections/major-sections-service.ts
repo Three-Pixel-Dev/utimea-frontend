@@ -60,4 +60,8 @@ export const majorSectionsService = {
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/api/major-sections/${id}`)
   },
+
+  deleteMany: async (ids: number[]): Promise<void> => {
+    await apiClient.post('/api/major-sections/bulk-delete', { ids })
+  },
 }

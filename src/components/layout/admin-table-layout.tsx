@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
-import { type ColumnDef, type PaginationState } from '@tanstack/react-table'
+import { type ColumnDef, type PaginationState, type RowSelectionState, type OnChangeFn } from '@tanstack/react-table'
 import {
   Card,
   CardContent,
@@ -28,6 +28,10 @@ type AdminTableLayoutProps<TData> = {
   totalItems?: number
   onPaginationChange?: (pagination: PaginationState) => void
   pagination?: PaginationState
+  onTableReady?: (table: any) => void
+  // Row selection props
+  rowSelection?: RowSelectionState
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>
 }
 
 export function AdminTableLayout<TData>({
@@ -45,6 +49,9 @@ export function AdminTableLayout<TData>({
   totalItems,
   onPaginationChange,
   pagination,
+  onTableReady,
+  rowSelection,
+  onRowSelectionChange,
 }: AdminTableLayoutProps<TData>) {
   const navigate = useNavigate()
 
@@ -81,6 +88,9 @@ export function AdminTableLayout<TData>({
             totalItems={totalItems}
             onPaginationChange={onPaginationChange}
             pagination={pagination}
+            onTableReady={onTableReady}
+            rowSelection={rowSelection}
+            onRowSelectionChange={onRowSelectionChange}
           />
         </CardContent>
       </Card>

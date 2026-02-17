@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { Plus, Pencil, Trash2, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useState } from 'react'
-import type { PaginationState } from '@tanstack/react-table'
+import type { PaginationState, RowSelectionState, Table as ReactTable } from '@tanstack/react-table'
 import {
   Card,
   CardContent,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/data-table/data-table'
+import { DataTableBulkActions } from '@/components/data-table/bulk-actions'
 import { AdminLayout } from '@/components/layout/admin-layout'
 import { codesService, CodeValue } from './codes-service'
 import { createCodeValuesTableColumns } from './code-values-table-columns'
@@ -24,6 +25,8 @@ type CodeDetailProps = {
 export function CodeDetail({ codeId }: CodeDetailProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [table, setTable] = useState<ReactTable<CodeValue> | null>(null)
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -87,6 +90,34 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
         loading: 'Deleting code value...',
         success: 'Code value deleted successfully!',
         error: 'Failed to delete code value',
+      }
+    )
+  }
+
+  const handleBulkDeleteCodeValues = async () => {
+    if (!table) return
+    
+    const selectedRows = table.getFilteredSelectedRowModel().rows
+    const ids = selectedRows.map((row) => row.original.id)
+
+    if (ids.length === 0) {
+      return
+    }
+
+    if (!confirm(`Are you sure you want to delete ${ids.length} code value(s)?`)) {
+      return
+    }
+
+    toast.promise(
+      codesService.deleteCodeValuesMany(ids).then(() => {
+        setRowSelection({})
+        table.resetRowSelection()
+        queryClient.invalidateQueries({ queryKey: ['codeValues', codeId] })
+      }),
+      {
+        loading: `Deleting ${ids.length} code value(s)...`,
+        success: `${ids.length} code value(s) deleted successfully!`,
+        error: 'Failed to delete code values',
       }
     )
   }
@@ -164,9 +195,26 @@ export function CodeDetail({ codeId }: CodeDetailProps) {
             totalItems={codeValuesPagination?.totalItems}
             pagination={pagination}
             onPaginationChange={setPagination}
+            onTableReady={(tableInstance) => {
+              setTable(tableInstance as ReactTable<CodeValue>)
+            }}
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
           />
         </CardContent>
       </Card>
+      {table && (
+        <DataTableBulkActions table={table} entityName='code value'>
+          <Button
+            variant='destructive'
+            size='sm'
+            onClick={handleBulkDeleteCodeValues}
+          >
+            <Trash2 className='mr-2 h-4 w-4' />
+            Delete Selected
+          </Button>
+        </DataTableBulkActions>
+      )}
     </AdminLayout>
   )
 }

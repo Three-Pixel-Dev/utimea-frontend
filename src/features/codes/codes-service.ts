@@ -97,6 +97,10 @@ export const codesService = {
     await apiClient.delete(`/api/codes/${id}`)
   },
 
+  deleteMany: async (ids: number[]): Promise<void> => {
+    await apiClient.post('/api/codes/bulk-delete', { ids })
+  },
+
   getCodeValues: async (codeId: number, pageAndFilter?: PageAndFilter<CodeValueFilter>): Promise<PaginationResponse<CodeValue>> => {
     const requestBody: PageAndFilter<CodeValueFilter> = {
       page: pageAndFilter?.page ?? 0,
@@ -178,5 +182,9 @@ export const codesService = {
 
   deleteCodeValue: async (id: number): Promise<void> => {
     await apiClient.delete(`/api/code-values/${id}`)
+  },
+
+  deleteCodeValuesMany: async (ids: number[]): Promise<void> => {
+    await apiClient.post('/api/code-values/bulk-delete', { ids })
   },
 }

@@ -81,6 +81,10 @@ export const teachersService = {
     await apiClient.delete(`/api/teachers/${id}`)
   },
 
+  deleteMany: async (ids: number[]): Promise<void> => {
+    await apiClient.post('/api/teachers/bulk-delete', { ids })
+  },
+
   // Excel operations
   downloadTemplate: async (): Promise<void> => {
     const response = await apiClient.get('/api/teachers/excel/template', {

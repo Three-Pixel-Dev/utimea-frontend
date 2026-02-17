@@ -4,6 +4,8 @@ import {
   PaginationState,
   SortingState,
   VisibilityState,
+  RowSelectionState,
+  OnChangeFn,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -11,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Table,
   TableBody,
@@ -33,6 +35,10 @@ type DataTableProps<TData> = {
   totalItems?: number
   onPaginationChange?: (pagination: PaginationState) => void
   pagination?: PaginationState
+  onTableReady?: (table: ReturnType<typeof useReactTable<TData>>) => void
+  // Row selection props
+  rowSelection?: RowSelectionState
+  onRowSelectionChange?: OnChangeFn<RowSelectionState>
 }
 
 export function DataTable<TData>({
@@ -44,11 +50,14 @@ export function DataTable<TData>({
   totalItems,
   onPaginationChange,
   pagination: controlledPagination,
+  onTableReady,
+  rowSelection: controlledRowSelection,
+  onRowSelectionChange,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = useState({})
+  const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({})
   const [internalPagination, setInternalPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -56,6 +65,8 @@ export function DataTable<TData>({
 
   const pagination = controlledPagination ?? internalPagination
   const setPagination = onPaginationChange ?? setInternalPagination
+  const rowSelection = controlledRowSelection ?? internalRowSelection
+  const setRowSelection = onRowSelectionChange ?? setInternalRowSelection
 
   const table = useReactTable({
     data,
@@ -71,6 +82,7 @@ export function DataTable<TData>({
     manualPagination: pageCount !== undefined,
     pageCount: pageCount,
     onPaginationChange: setPagination,
+    enableRowSelection: true,
     state: {
       sorting,
       columnFilters,
@@ -79,6 +91,18 @@ export function DataTable<TData>({
       pagination,
     },
   })
+
+  // Expose table instance to parent
+  const onTableReadyRef = useRef(onTableReady)
+  useEffect(() => {
+    onTableReadyRef.current = onTableReady
+  }, [onTableReady])
+
+  useEffect(() => {
+    if (onTableReadyRef.current) {
+      onTableReadyRef.current(table)
+    }
+  }, [table])
 
   return (
     <div className='space-y-4'>
