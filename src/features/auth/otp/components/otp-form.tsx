@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
-import { showSubmittedData } from '@/lib/show-submitted-data'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,6 +20,7 @@ import {
   InputOTPSlot,
   InputOTPSeparator,
 } from '@/components/ui/input-otp'
+import { authService } from '../../auth-service'
 
 const formSchema = z.object({
   otp: z
@@ -33,23 +34,46 @@ type OtpFormProps = React.HTMLAttributes<HTMLFormElement>
 export function OtpForm({ className, ...props }: OtpFormProps) {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState<string>('')
+
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem('resetPasswordEmail')
+    if (!storedEmail) {
+      toast.error('Email not found. Please start over.')
+      navigate({ to: '/forgot-password' })
+      return
+    }
+    setEmail(storedEmail)
+  }, [navigate])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { otp: '' },
   })
 
-  // eslint-disable-next-line react-hooks/incompatible-library
   const otp = form.watch('otp')
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    showSubmittedData(data)
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    if (!email) {
+      toast.error('Email not found. Please start over.')
+      navigate({ to: '/forgot-password' })
+      return
+    }
 
-    setTimeout(() => {
+    setIsLoading(true)
+    try {
+      await authService.verifyOtp({ email, otp: data.otp })
+      // Store verified OTP for reset password step
+      sessionStorage.setItem('verifiedOtp', data.otp)
+      toast.success('OTP verified successfully')
+      navigate({ to: '/reset-password' })
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Invalid or expired OTP'
+      toast.error(errorMessage)
+      form.reset()
+    } finally {
       setIsLoading(false)
-      navigate({ to: '/' })
-    }, 1000)
+    }
   }
 
   return (
@@ -92,7 +116,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
           )}
         />
         <Button className='mt-2' disabled={otp.length < 6 || isLoading}>
-          Verify
+          {isLoading ? 'Verifying...' : 'Verify'}
         </Button>
       </form>
     </Form>

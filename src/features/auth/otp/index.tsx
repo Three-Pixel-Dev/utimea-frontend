@@ -30,12 +30,11 @@ export function Otp() {
           <p className='px-8 text-center text-sm text-muted-foreground'>
             Haven't received it?{' '}
             <Link
-              to='/sign-in'
+              to='/forgot-password'
               className='underline underline-offset-4 hover:text-primary'
             >
               Resend a new code.
             </Link>
-            .
           </p>
         </CardFooter>
       </Card>

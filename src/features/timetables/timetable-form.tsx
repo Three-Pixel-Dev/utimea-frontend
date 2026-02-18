@@ -169,9 +169,10 @@ export function TimetableForm({ timetable, mode }: TimetableFormProps) {
         setIsLoading(false)
         navigate({ to: '/timetables' as any })
       }
-    } catch (error) {
+    } catch (error: any) {
       setIsLoading(false)
-      toast.error('An error occurred')
+      const errorMessage = error.response?.data?.message || 'An error occurred'
+      toast.error(errorMessage)
     }
   }
 

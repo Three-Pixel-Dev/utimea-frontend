@@ -19,6 +19,9 @@ import { Route as AuthenticatedRoomsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedMajorSectionsRouteImport } from './routes/_authenticated/major-sections'
 import { Route as AuthenticatedCodesRouteImport } from './routes/_authenticated/codes'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
+import { Route as authOtpRouteImport } from './routes/(auth)/otp'
+import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as AuthenticatedTimetableChangeRequestsIndexRouteImport } from './routes/_authenticated/timetable-change-requests/index'
 import { Route as AuthenticatedTimetablesNewRouteImport } from './routes/_authenticated/timetables/new'
 import { Route as AuthenticatedTimetablesCombineRouteImport } from './routes/_authenticated/timetables/combine'
@@ -107,6 +110,21 @@ const AuthenticatedCodesRoute = AuthenticatedCodesRouteImport.update({
 const authSignInRoute = authSignInRouteImport.update({
   id: '/(auth)/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authResetPasswordRoute = authResetPasswordRouteImport.update({
+  id: '/(auth)/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authOtpRoute = authOtpRouteImport.update({
+  id: '/(auth)/otp',
+  path: '/otp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
+  id: '/(auth)/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedTimetableChangeRequestsIndexRoute =
@@ -341,6 +359,9 @@ const AuthenticatedCodesIdValuesEditValueIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
+  '/forgot-password': typeof authForgotPasswordRoute
+  '/otp': typeof authOtpRoute
+  '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
   '/codes': typeof AuthenticatedCodesRouteWithChildren
   '/major-sections': typeof AuthenticatedMajorSectionsRouteWithChildren
@@ -390,6 +411,9 @@ export interface FileRoutesByFullPath {
   '/codes/$id/values/edit/$valueId': typeof AuthenticatedCodesIdValuesEditValueIdRoute
 }
 export interface FileRoutesByTo {
+  '/forgot-password': typeof authForgotPasswordRoute
+  '/otp': typeof authOtpRoute
+  '/reset-password': typeof authResetPasswordRoute
   '/sign-in': typeof authSignInRoute
   '/codes': typeof AuthenticatedCodesRouteWithChildren
   '/major-sections': typeof AuthenticatedMajorSectionsRouteWithChildren
@@ -442,6 +466,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/(auth)/forgot-password': typeof authForgotPasswordRoute
+  '/(auth)/otp': typeof authOtpRoute
+  '/(auth)/reset-password': typeof authResetPasswordRoute
   '/(auth)/sign-in': typeof authSignInRoute
   '/_authenticated/codes': typeof AuthenticatedCodesRouteWithChildren
   '/_authenticated/major-sections': typeof AuthenticatedMajorSectionsRouteWithChildren
@@ -495,6 +522,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/forgot-password'
+    | '/otp'
+    | '/reset-password'
     | '/sign-in'
     | '/codes'
     | '/major-sections'
@@ -544,6 +574,9 @@ export interface FileRouteTypes {
     | '/codes/$id/values/edit/$valueId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/forgot-password'
+    | '/otp'
+    | '/reset-password'
     | '/sign-in'
     | '/codes'
     | '/major-sections'
@@ -595,6 +628,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
+    | '/(auth)/forgot-password'
+    | '/(auth)/otp'
+    | '/(auth)/reset-password'
     | '/(auth)/sign-in'
     | '/_authenticated/codes'
     | '/_authenticated/major-sections'
@@ -647,6 +683,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  authForgotPasswordRoute: typeof authForgotPasswordRoute
+  authOtpRoute: typeof authOtpRoute
+  authResetPasswordRoute: typeof authResetPasswordRoute
   authSignInRoute: typeof authSignInRoute
 }
 
@@ -720,6 +759,27 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof authSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/reset-password': {
+      id: '/(auth)/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/otp': {
+      id: '/(auth)/otp'
+      path: '/otp'
+      fullPath: '/otp'
+      preLoaderRoute: typeof authOtpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/forgot-password': {
+      id: '/(auth)/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof authForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/timetable-change-requests/': {
@@ -1253,6 +1313,9 @@ const AuthenticatedRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  authForgotPasswordRoute: authForgotPasswordRoute,
+  authOtpRoute: authOtpRoute,
+  authResetPasswordRoute: authResetPasswordRoute,
   authSignInRoute: authSignInRoute,
 }
 export const routeTree = rootRouteImport

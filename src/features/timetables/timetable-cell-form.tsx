@@ -201,8 +201,9 @@ export function TimetableCellForm({
       queryClient.invalidateQueries({ queryKey: ['timetables'] })
       onOpenChange(false)
       onSuccess?.()
-    } catch (error) {
-      toast.error('An error occurred')
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'An error occurred'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -224,8 +225,9 @@ export function TimetableCellForm({
       queryClient.invalidateQueries({ queryKey: ['timetables'] })
       onOpenChange(false)
       onSuccess?.()
-    } catch (error) {
-      toast.error('Failed to delete timetable entry')
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Failed to delete timetable entry'
+      toast.error(errorMessage)
     } finally {
       setIsDeleting(false)
     }
